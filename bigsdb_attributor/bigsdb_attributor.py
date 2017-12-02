@@ -24,7 +24,7 @@ def read_test_and_ref_files(testdata, refdata):
     # Merge dataframes and indicate source of isolate (data vs reference).  Flatten MultiIndex.
     combined_df = pd.concat([test_data, ref], keys=['test','ref'], axis=0).reset_index()
     return combined_df
-    
+
 
 def read_and_validate(testdata, refdata):
     combined = read_test_and_ref_files(testdata, refdata)

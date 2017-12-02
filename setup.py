@@ -12,9 +12,10 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    "matplotlib",
-    "pandas",
-    "xlrd",
+    "matplotlib==2.1.0",
+    "pandas==0.21.0",
+    "tqdm==4.19.4",
+    "xlrd==1.1.0",
 ]
 
 setup_requirements = [
