@@ -10,12 +10,16 @@ BIGSdb-attributor
         :target: https://travis-ci.org/theflyingturtle/bigsdb_attributor
 
 .. image:: https://readthedocs.org/projects/bigsdb-attributor/badge/?version=latest
-        :target: https://bigsdb-attributor.readthedocs.io/en/latest/?badge=latest
+	:target: http://bigsdb-attributor.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/theflyingturtle/bigsdb_attributor/shield.svg
-     :target: https://pyup.io/repos/github/theflyingturtle/bigsdb_attributor/
+.. image:: https://pyup.io/repos/github/theflyingturtle/BIGSdb-attributor/shield.svg
+     :target: https://pyup.io/repos/github/theflyingturtle/BIGSdb-attributor/
      :alt: Updates
+
+.. image:: https://pyup.io/repos/github/theflyingturtle/BIGSdb-attributor/python-3-shield.svg
+     :target: https://pyup.io/repos/github/theflyingturtle/BIGSdb-attributor/
+     :alt: Python 3
 
 
 Attribute human disease isolates to host sources using STRUCTURE or iSource
