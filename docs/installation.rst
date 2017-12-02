@@ -4,31 +4,8 @@
 Installation
 ============
 
-
-Stable release
---------------
-
-To install BIGSdb-attributor, run this command in your terminal:
-
-.. code-block:: console
-
-    $ pip install bigsdb_attributor
-
-This is the preferred method to install BIGSdb-attributor, as it will always install the most recent stable release. 
-
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
-
-.. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
-
-
-From sources
-------------
-
-The sources for BIGSdb-attributor can be downloaded from the `Github repo`_.
-
-You can either clone the public repository:
+There is no pip release of BIGSdb-attributor yet. To install from sources, you can either clone the
+public GitHub repository:
 
 .. code-block:: console
 

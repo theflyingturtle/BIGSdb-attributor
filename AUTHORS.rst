@@ -2,12 +2,8 @@
 Credits
 =======
 
-Development Lead
-----------------
+Development Leads
+-----------------
 
 * Melissa Jansen van Rensburg <m.jansenvr@imperial.ac.uk>
-
-Contributors
-------------
-
-None yet. Why not be the first?
+* Katriel Cohn-Gordon <me@katriel.co.uk>
