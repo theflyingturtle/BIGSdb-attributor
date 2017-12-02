@@ -4,6 +4,8 @@ import shutil
 import sys
 import os
 
+from .bigsdb_attributor import read_and_validate
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Takes BIGS data exports for data and reference sets, converts to STRUCTURE/iSource format, and runs STRUCTURE/iSource for host attribution.  Input spreadsheets MUST have same headers.")
@@ -39,7 +41,7 @@ def main():
     setup_output_directory(args.output_directory, args.overwrite)
     fh = logging.FileHandler(os.path.join(args.output_directory, args.logfile))
     logging.getLogger().addHandler(fh)
-
+    read_and_validate(args.datafile, args.reffile)
 
 if __name__ == '__main__':
     main()
