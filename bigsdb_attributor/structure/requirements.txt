@@ -1,4 +1,4 @@
 matplotlib==2.1.0
-pandas
+pandas==0.21.0
 tqdm
 xlrd
