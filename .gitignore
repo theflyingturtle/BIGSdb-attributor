@@ -1,3 +1,73 @@
+
+# Created by https://www.gitignore.io/api/emacs,python
+
+### Emacs ###
+# -*- mode: gitignore; -*-
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Org-mode
+.org-id-locations
+*_archive
+
+# flymake-mode
+*_flymake.*
+
+# eshell files
+/eshell/history
+/eshell/lastdir
+
+# elpa packages
+/elpa/
+
+# reftex files
+*.rel
+
+# AUCTeX auto folder
+/auto/
+
+# cask packages
+.cask/
+dist/
+
+# Flycheck
+flycheck_*.el
+
+# server auth directory
+/server/
+
+# projectiles files
+.projectile
+projectile-bookmarks.eld
+
+# directory configuration
+.dir-locals.el
+
+# saveplace
+places
+
+# url cache
+url/cache/
+
+# cedet
+ede-projects.el
+
+# smex
+smex-items
+
+# company-statistics
+company-statistics-cache.el
+
+# anaconda-mode
+anaconda-mode/
+
+### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -8,10 +78,8 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-env/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -20,6 +88,7 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -42,7 +111,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*,cover
+*.cover
 .hypothesis/
 
 # Translations
@@ -51,6 +120,14 @@ coverage.xml
 
 # Django stuff:
 *.log
+local_settings.py
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
 
 # Sphinx documentation
 docs/_build/
@@ -58,5 +135,38 @@ docs/_build/
 # PyBuilder
 target/
 
-# pyenv python configuration file
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
 .python-version
+
+# celery beat schedule file
+celerybeat-schedule
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+
+# End of https://www.gitignore.io/api/emacs,python

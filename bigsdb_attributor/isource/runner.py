@@ -6,8 +6,10 @@ import pandas as pd
 
 ISOURCE_RESULTS = "isource_results"
 
+
 class ISourceRuntimeError(RuntimeError):
     pass
+
 
 def run(data, label, max_populations, executable=None, output_directory=None):
     """Run iSource with the given data and options.
@@ -34,10 +36,10 @@ def run(data, label, max_populations, executable=None, output_directory=None):
         isource_p = subprocess.Popen([os.path.expanduser(executable),
                                       data,
                                       ISOURCE_RESULTS,
-                                      "1000", # number of iterations
-                                      "1", # thinning,
-                                      "1", # Dirichlet uniform prior
-        ], stdout=runtime, stderr=sys.stderr, cwd=path())
+                                      "1000",  # number of iterations
+                                      "1",  # thinning,
+                                      "1",  # Dirichlet uniform prior
+                                      ], stdout=runtime, stderr=sys.stderr, cwd=path())
         isource_p.communicate()
 
     return path("g_" + ISOURCE_RESULTS)

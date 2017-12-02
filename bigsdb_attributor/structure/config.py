@@ -20,7 +20,7 @@ MAINPARAMS = """\
 #define NUMREPS   10000
 """
 
-EXTRAPARAMS="""\
+EXTRAPARAMS = """\
 #define USEPOPINFO  1
 #define GENSBACK    2
 #define MIGRPRIOR 0.0
@@ -47,5 +47,6 @@ EXTRAPARAMS="""\
 #define ECHODATA     1
 """
 
+
 class Loci(object):
-  MLST = 7
+    MLST = 7
