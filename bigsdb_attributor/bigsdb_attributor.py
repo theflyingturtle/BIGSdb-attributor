@@ -6,7 +6,9 @@ import sys
 
 """Written by Melissa Jansen van Rensburg and Katriel Cohn-Gordon (2017).
 
-Takes test and reference sets from BIGSdb, converts to STRUCTURE/iSource format, runs STRUCTURE/iSource, and parses outputs.
+Takes test and reference sets from BIGSdb, converts to STRUCTURE/iSource
+format, runs STRUCTURE/iSource, and parses outputs.
+
 """
 
 
@@ -22,7 +24,8 @@ def read_test_and_ref_files(testdata, refdata):
     else:
         # TODO (if not present, copy from received or isolation date)
         logging.warn(
-            "private_isolation_date column not found, using isolation date instead")
+            "private_isolation_date column not found, using isolation date"
+            " instead")
         test_data['private_isolation_date'] = pd.to_datetime(
             test_data['isolation_date'], dayfirst=True)
 
@@ -60,7 +63,8 @@ def validate_and_fixup(combined_df):
         logging.info("\nAll required fields present.  Moving on...")
     else:
         logging.fatal(
-            "\n Could not find headers corresponding to {}. Please try again.".format(missing_headers))
+            "\n Could not find headers corresponding to {}. Please try again."
+            .format(missing_headers))
         sys.exit(1)
 
 
@@ -73,5 +77,5 @@ def read_and_validate(testdata, refdata):
 
 def main():
     read_test_and_ref_files()
-    run_attribution_alg_and_parse_outputs()
-    graph()
+    # run_attribution_alg_and_parse_outputs()
+    # graph()

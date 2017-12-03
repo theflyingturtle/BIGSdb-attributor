@@ -1,15 +1,19 @@
 #! /usr/bin/env python
 """Written by Katriel Cohn-Gordon (2016).
 
-STRUCTURE is population genetics software which has a terribly non-machine-readable output
-format. This module implements a rather ad-hoc parser for its output format, attempting to coerce it
-at least partially into a machine-readable format.
+STRUCTURE is population genetics software which has a terribly
+non-machine-readable output format. This module implements a rather ad-hoc
+parser for its output format, attempting to coerce it at least partially into a
+machine-readable format.
 
-Call parse(f) to parse a file. Returns a dict of interesting data you might want to know.
+Call parse(f) to parse a file.
+
+Returns a dict of interesting data you might want to know.
 
 """
 
 import argparse
+from io import IOBase
 import cStringIO as io
 import logging
 import os
@@ -18,7 +22,8 @@ import pandas as pd
 
 
 class StructureResultsBlock(object):
-    """Represents, effectively, a dataframe embedded in the STRUCTURE output."""
+    """Represents, effectively, a dataframe embedded in the STRUCTURE
+    output."""
 
     def __init__(self, name, regex, n_lines_after_regex):
         self.name = name
@@ -136,7 +141,7 @@ def read_structure_from(lines):
 
 
 def parse(f):
-    if isinstance(f, file):
+    if isinstance(f, IOBase):
         return read_structure_from(f)
     elif os.path.isfile(f):
         with open(f) as tmp:
@@ -153,7 +158,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    description = "Parse the (horrible) output of STRUCTURE into something nicer."
+    description = "Parse the output of STRUCTURE into something nicer."
     parser = argparse.ArgumentParser(description)
     parser.add_argument("structure_output_file", help="Output STRUCTURE file")
 

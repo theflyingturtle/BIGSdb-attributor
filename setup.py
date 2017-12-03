@@ -19,7 +19,8 @@ requirements = [
 ]
 
 setup_requirements = [
-    # TODO(theflyingturtle): put setup requirements (distutils extensions, etc.) here
+    # TODO(theflyingturtle): put setup requirements
+    # (distutils extensions, etc.) here
 ]
 
 test_requirements = [
@@ -29,13 +30,18 @@ test_requirements = [
 setup(
     name='bigsdb_attributor',
     version='0.1.0',
-    description="Attribute human disease isolates to host sources using STRUCTURE or iSource",
+    description="Attribute human disease isolates to host sources"
+    "using STRUCTURE or iSource",
     long_description=readme + '\n\n' + history,
     author="Melissa Jansen van Rensburg",
     author_email='m.jansenvr@imperial.ac.uk',
     url='https://github.com/theflyingturtle/bigsdb_attributor',
     packages=find_packages(include=['bigsdb_attributor']),
-    entry_points={'console_scripts':['bigsdb_attributor=bigsdb_attributor.cli:main']},
+    entry_points={
+        'console_scripts': [
+            'bigsdb_attributor=bigsdb_attributor.cli:main'
+        ]
+    },
     include_package_data=True,
     install_requires=requirements,
     license="GNU General Public License v3",

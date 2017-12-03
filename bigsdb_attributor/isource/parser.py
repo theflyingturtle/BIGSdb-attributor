@@ -1,4 +1,5 @@
-"""iSource results files aren't great, but let's try to make something of them"""
+"""iSource results files aren't great, but let's try to make something of
+them."""
 
 import glob
 import logging
@@ -23,7 +24,8 @@ def check_run_succeeded(g_path):
                 break
         else:
             raise IOError(
-                "Path {} does not exist and I couldn't find a log file".format(g_path))
+                "Path {} does not exist; I couldn't find a log file".format(
+                    g_path))
 
         with open(logfile) as loglines:
             errors = "\n".join(
@@ -34,7 +36,8 @@ def check_run_succeeded(g_path):
                     g_path, errors))
         else:
             raise IOError(
-                "Path {} does not exist and I have no idea why.".format(g_path))
+                "Path {} does not exist and I have no idea why.".format(
+                    g_path))
 
 
 def parse(g_path):
@@ -63,9 +66,11 @@ def parse(g_path):
                 g_path,
                 g_values.shape,
                 no_populations))
+        assertion = "isource shapes for {} went wrong: g_values has shape"\
+                    "{} which is inconsistent with having {} populations"
         assert not (
             g_values.shape[1] %
-            no_populations), "isource shapes for {} went wrong: g_values has shape {} which is inconsistent with having {} populations".format(
+            no_populations), assertion.format(
             g_path, g_values.shape, no_populations)
     no_test_isolates = g_values.shape[1] / no_populations
     g_values = pd.DataFrame(
@@ -76,10 +81,6 @@ def parse(g_path):
     # Looks like this is wrong, how can we be sure that iSource is labelling
     # things correctly? Need to figure out the order in their file format
     g_values.columns += 1
-
-    # Reorder columns in order of descending probability
-    # column_order = g_values.mean(axis=0).sort_values(ascending=False).index.values.tolist()
-    # g_values = g_values.loc[:, column_order]
 
     # Rename test isolates to their original labels
     ixmap_path = os.path.join(

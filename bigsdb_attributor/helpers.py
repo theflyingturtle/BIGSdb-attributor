@@ -21,9 +21,8 @@ EXTRA_COLOURS = cycle(['#1B38E7', '#FF0000', '#4C4C4C',
                        '#408000', '#FFFFFF', '#19FF80'])
 
 
-def colour_of(pop): return COLOURS.get(
-    pop.lower().strip(),
-    None) or next(EXTRA_COLOURS)
+def colour_of(pop):
+    return COLOURS.get(pop.lower().strip(), None) or next(EXTRA_COLOURS)
 
 
 def add_line(ax, xpos, ypos):
@@ -69,7 +68,8 @@ def label_group_bar_table(ax, df):
 
 def plot_individual_ancestry(data, path, title=None, xlabel=None):
     # Reorder data by most common population (i.e. column)
-    source_order = data.mean().sort_values(ascending=False).index.values.tolist()
+    source_order = data.mean().sort_values(ascending=False)
+    source_order = source_order.index.values.tolist()
 
     # dict(zip(source_order,range(len(source_order))))
     data['PopRank'] = data.idxmax(axis=1).map(source_order.index)
@@ -82,7 +82,8 @@ def plot_individual_ancestry(data, path, title=None, xlabel=None):
     plot = data.plot.bar(stacked=True, color=colors, width=1.0, linewidth=0.0)
 
     # Draw black vertical lines between populations
-    def blackvlines(location): return plt.axvline(location, color='#000000')
+    def blackvlines(location):
+        return plt.axvline(location, color='#000000')
     data.idxmax(axis=1).value_counts().reindex(
         source_order).cumsum().map(blackvlines)
 

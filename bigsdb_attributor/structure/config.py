@@ -2,7 +2,7 @@ MAINPARAMS = """\
 #define OUTFILE  {outputfile}
 #define INFILE   {inputfile}
 #define NUMINDS    {n}
-#define NUMLOCI    {l}
+#define NUMLOCI    {n_l}
 #define LABEL     {label:d}
 #define POPDATA   1
 #define POPFLAG   1

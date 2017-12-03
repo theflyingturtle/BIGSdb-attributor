@@ -9,7 +9,9 @@ from .bigsdb_attributor import read_and_validate
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Takes BIGS data exports for data and reference sets, converts to STRUCTURE/iSource format, and runs STRUCTURE/iSource for host attribution.  Input spreadsheets MUST have same headers.")
+        description="Takes BIGS data exports for data and reference sets, "
+        "converts to STRUCTURE/iSource format, and runs STRUCTURE/iSource for "
+        "host attribution.  Input spreadsheets MUST have same headers.")
     parser.add_argument(
         "--datafile",
         required=True,
@@ -33,7 +35,9 @@ def parse_args():
     parser.add_argument(
         "--sourcelookup",
         required=True,
-        help="CSV file containing two columns mapping allowed source values from PubMLST to aggregated attribution source.  Headers must be 'original' and 'aggregated' in that order.")
+        help="CSV file containing two columns mapping allowed source values"
+        "from PubMLST to aggregated attribution source.  Headers must be"
+        "'original' and 'aggregated' in that order.")
     parser.add_argument(
         "--mode",
         help="Attribution program to use",
@@ -58,7 +62,8 @@ def setup_output_directory(output, overwrite):
             shutil.rmtree(output)
         else:
             logging.fatal(
-                "Directory called '%s' already exists, choose a new name or use the overwrite option.",
+                "Directory called '%s' already exists, choose a new name"
+                "or use the overwrite option.",
                 output)
             sys.exit(1)
 
