@@ -1,10 +1,12 @@
 import argparse
+import coloredlogs
 import logging
+import os
 import shutil
 import sys
-import os
 
-from .bigsdb_attributor import read_and_validate
+from .bigsdb_attributor import read_and_validate, prepare_for_structure
+from bigsdb_attributor.structure import runner as structure_runner, parser as structure_parser
 
 
 def parse_args():
@@ -67,18 +69,36 @@ def setup_output_directory(output, overwrite):
                 output)
             sys.exit(1)
 
-    logging.info("Creating new directory called '%s'", output)
+    logging.debug("Creating new directory called '%s'", output)
     os.mkdir(output)
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
-    print('hello')
+    # Initial setup
+    coloredlogs.install(level='DEBUG')  # or logging.basicConfig(level=logging.DEBUG)
+    logging.captureWarnings(True)
     args = parse_args()
     setup_output_directory(args.output_directory, args.overwrite)
     fh = logging.FileHandler(os.path.join(args.output_directory, args.logfile))
     logging.getLogger().addHandler(fh)
-    read_and_validate(args.datafile, args.reffile)
+
+    # Read and validate data
+    combined = read_and_validate(args.datafile, args.reffile)
+
+    # Write STRUCTURE data frame to file
+    logging.info("Stop! STRUCTURE time")
+    structured = prepare_for_structure(combined, args.sourcelookup)
+    structure_file = os.path.join(args.output_directory, "STRUCTUREInput.tsv")
+    structured.to_csv(structure_file, sep="\t")
+    results_path = structure_runner.run(structure_file,
+                                        label=1,
+                                        max_populations=structured.iloc[:, 0].nunique(),
+                                        output_directory=args.output_directory)
+
+    log.info("STRUCTURE finished; parsing results")
+    inferred_ancestry = structure_parser.parse(results_path)["InferredAncestry"]
+    import ipdb
+    ipdb.set_trace()
 
 
 if __name__ == '__main__':

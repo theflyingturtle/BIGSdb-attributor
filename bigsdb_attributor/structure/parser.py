@@ -14,7 +14,7 @@ Returns a dict of interesting data you might want to know.
 
 import argparse
 from io import IOBase
-import cStringIO as io
+import io
 import logging
 import os
 import re
@@ -38,7 +38,7 @@ class StructureResultsBlock(object):
         self.raw_lines.append(line)
 
     def finish(self):
-        data = io.StringIO("".join(self.raw_lines).decode("ascii"))
+        data = io.StringIO("".join(self.raw_lines))
         df = pd.read_table(data, delim_whitespace=True, header=None)
         return df
 
@@ -61,7 +61,7 @@ class InferredAncestryPop0Block(StructureResultsBlock):
         self.index.append(int(line.strip().split()[1]))
 
     def finish(self):
-        data = io.StringIO("".join(self.raw_lines).decode("ascii"))
+        data = io.StringIO("".join(self.raw_lines))
         df = pd.read_table(data, delim_whitespace=True, header=None)
         df.index = self.index
         df.columns = [c + 1 for c in df.columns]
@@ -79,7 +79,7 @@ class InferredAncestryPop0Block(StructureResultsBlock):
 def read_structure_from(lines):
     """Attempt to parse some sense into the STRUCTURE output file |lines|."""
     results = {}
-    numeric_values = {name: re.compile(value) for name, value in {
+    numeric_values = {name: re.compile(value) for name, value in list({
         "indivs": r"^\s*(\d+) individuals",
         "loci": r"^\s*(\d+) loci",
         "k": r"^\s*(\d+) populations assumed",
@@ -94,7 +94,7 @@ def read_structure_from(lines):
         "lnprob": r"^Estimated Ln Prob of Data\s+=\s+([\d.$nainf-]+).*$",
         "meanln": r"^Mean value of ln likelihood\s+=\s+([\d.$nainf-]+).*$",
         "varln": r"^Variance of ln likelihood\s+=\s+([\d.$nainf-]+).*$",
-    }.items()}  # Pinched from StructureHarvester
+    }.items())}  # Pinched from StructureHarvester
     blocks = [
         StructureResultsBlock(
             "ClusterMembership",
@@ -124,7 +124,7 @@ def read_structure_from(lines):
             continue
 
         # Check if we're reading a numeric value
-        for name, value in numeric_values.items():
+        for name, value in list(numeric_values.items()):
             match = value.match(line)
             if match:
                 results[name] = match.group(1)

@@ -1,3 +1,6 @@
+import logging
+logging.error("Add '00' to BURNIN, ADMBURNING and NUMREPS")
+
 MAINPARAMS = """\
 #define OUTFILE  {outputfile}
 #define INFILE   {inputfile}
@@ -16,8 +19,8 @@ MAINPARAMS = """\
 #define MISSING     -9
 #define PLOIDY       1
 #define MAXPOPS    {maxpops}
-#define BURNIN    1000
-#define NUMREPS   10000
+#define BURNIN    10
+#define NUMREPS   100
 """
 
 EXTRAPARAMS = """\
@@ -27,7 +30,7 @@ EXTRAPARAMS = """\
 
 #define LINKAGE     0
 #define NOADMIX     1
-#define ADMBURNIN  500
+#define ADMBURNIN  5
 
 #define FREQSCORR   0
 #define LAMBDA    1.0
