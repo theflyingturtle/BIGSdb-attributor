@@ -87,18 +87,29 @@ def main():
 
     # Write STRUCTURE data frame to file
     logging.info("Stop! STRUCTURE time")
-    structured = prepare_for_structure(combined, args.sourcelookup)
+    structured, mapping = prepare_for_structure(combined, args.sourcelookup)
     structure_file = os.path.join(args.output_directory, "STRUCTUREInput.tsv")
     structured.to_csv(structure_file, sep="\t")
+    logging.info("Running STRUCTURE.....")
     results_path = structure_runner.run(structure_file,
                                         label=1,
                                         max_populations=structured.iloc[:, 0].nunique(),
                                         output_directory=args.output_directory)
 
-    log.info("STRUCTURE finished; parsing results")
+    logging.info("STRUCTURE finished; parsing results")
+    # Write inferred ancestries to CSV
     inferred_ancestry = structure_parser.parse(results_path)["InferredAncestry"]
-    import ipdb
-    ipdb.set_trace()
+    inferred_ancestry.columns = [mapping[c] for c in inferred_ancestry.columns]
+    inferred_ancestry.to_csv(os.path.join(output, "STRUCTURE_Inferred_Ancestry.csv"))
+
+    # Log location of CSV containing inferred ancestries of test isolates
+    logging.info("Inferred ancestries for test isolates extracted and processed.")
+    logging.info("Saved as STRUCTURE_Inferred_Ancestry.csv in the directory called %s.",
+                 args.output_directory)
+    logging.info("Text and visual summaries of results follow.")
+
+    # import ipdb
+    # ipdb.set_trace()
 
 
 if __name__ == '__main__':

@@ -78,6 +78,23 @@ def validate_and_fixup(combined_df):
         logging.warn("Mixed profiles detected, dropping ids corresponding to %s", ids_to_drop)
     combined_df = combined_df[~mixed_profiles]
 
+    # Fill missing values
+    combined_df = combined_df.fillna({
+        'clonal_complex (MLST)': 'Unassigned',
+        'ST (MLST)': 'Not determined',
+        'year': 'Unknown',
+        'month': 'Unknown',
+        #    'received_date': 'Unknown',
+        'source': 'Unknown',
+        'aspA': '-9',
+        'glnA': '-9',
+        'gltA': '-9',
+        'glyA': '-9',
+        'pgm': '-9',
+        'tkt': '-9',
+        'uncA': '-9',
+    })
+
     # Detect any ids present in both datasets (shouldn't have test isolates in ref dataset)
     n_duplicate_ids = len(combined_df[combined_df.duplicated('id')].index)
     if n_duplicate_ids == 0:
@@ -150,7 +167,7 @@ def prepare_for_structure(combined_df, sourcelookup):
     structure_df.columns = [c if locus.match(c) else "" for c in structure_df.columns]
     structure_df.index.name = ""
 
-    return structure_df
+    return structure_df, reversed_integers
 
 
 def read_and_validate(testdata, refdata):
