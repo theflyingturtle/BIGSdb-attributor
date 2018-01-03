@@ -27,22 +27,22 @@ Attribute human disease isolates to host sources using STRUCTURE or iSource. Cur
 Installing
 ----------
 
-```
-git clone https://github.com/theflyingturtle/BIGSdb-attributor
-python3 BIGSdb-attributor/setup.py install
-bigsdb_attributor --help
-```
+To install as a user::
+
+  git clone https://github.com/theflyingturtle/BIGSdb-attributor
+  python3 BIGSdb-attributor/setup.py install
+  bigsdb_attributor --help
 
 Developing
 ----------
 
-```
-git clone https://github.com/theflyingturtle/BIGSdb-attributor
-source .../path/to/virtualenv/bin/activate[.fish]
-pip install -r BIGSdb-attributor/requirements-dev.txt
-python3 BIGSdb-attributor/setup.py develop
-bigsdb_attributor --help
-```
+To set up as a developer::
+
+  git clone https://github.com/theflyingturtle/BIGSdb-attributor
+  source .../path/to/virtualenv/bin/activate[.fish]
+  pip install -r BIGSdb-attributor/requirements-dev.txt
+  python3 BIGSdb-attributor/setup.py develop
+  bigsdb_attributor --help
 
 * Free software: GNU General Public License v3
 
