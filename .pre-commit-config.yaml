@@ -20,12 +20,6 @@ repos:
     - id: sort-simple-yaml
     - id: trailing-whitespace
 
--   repo: git://github.com/FalconSocial/pre-commit-python-sorter
-    sha: master
-    hooks:
-    - id: python-import-sorter
-    args: ['--silent-overwrite']
-
 -   repo: https://github.com/asottile/pyupgrade
     sha: v1.2.0
     hooks:
@@ -51,4 +45,3 @@ repos:
     sha: v1.1.0
     hooks:
     -   id: python-safety-dependencies-check
-

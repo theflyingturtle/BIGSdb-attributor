@@ -1,7 +1,16 @@
 # -*- coding: utf-8 -*-
-import logging
+SPEEDY = True
 
-logging.error("Add '00' to BURNIN, ADMBURNING and NUMREPS")
+ADMBURNIN = 500
+BURNIN = 1000
+NUMREPS = 10000
+
+if SPEEDY:
+    import logging
+    logging.error("Add '00' to BURNIN, ADMBURNIN and NUMREPS")
+    ADMBURNIN /= 100
+    BURNIN /= 100
+    NUMREPS /= 100
 
 MAINPARAMS = """\
 #define OUTFILE  {outputfile}
@@ -21,9 +30,9 @@ MAINPARAMS = """\
 #define MISSING     -9
 #define PLOIDY       1
 #define MAXPOPS    {maxpops}
-#define BURNIN    10
-#define NUMREPS   100
-"""
+#define BURNIN    %s
+#define NUMREPS   %s
+""" % (BURNIN, NUMREPS)
 
 EXTRAPARAMS = """\
 #define USEPOPINFO  1
@@ -32,7 +41,7 @@ EXTRAPARAMS = """\
 
 #define LINKAGE     0
 #define NOADMIX     1
-#define ADMBURNIN  5
+#define ADMBURNIN  %s
 
 #define FREQSCORR   0
 #define LAMBDA    1.0
@@ -50,7 +59,7 @@ EXTRAPARAMS = """\
 #define PRINTLIKES   0
 #define INTERMEDSAVE 0
 #define ECHODATA     1
-"""
+""" % (ADMBURNIN,)
 
 
 class Loci(object):

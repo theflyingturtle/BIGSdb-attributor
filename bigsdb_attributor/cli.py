@@ -119,6 +119,7 @@ def main():
     )
 
     logging.info('STRUCTURE finished; parsing results')
+
     # Write inferred ancestries to CSV
     inferred_ancestry = structure_parser.parse(results_path)[
         'InferredAncestry'

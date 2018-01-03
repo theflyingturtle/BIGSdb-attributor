@@ -8,20 +8,18 @@ configurable options, giving some data in an output directory.
 
 """
 
-import argparse
-import collections
 import distutils.spawn
 import logging
 import os
-import re
-import shutil
 import subprocess
 import sys
-import tempfile
 
 import pandas as pd
-import xlrd
-from bigsdb_attributor.structure.config import EXTRAPARAMS, MAINPARAMS
+import tqdm
+from bigsdb_attributor.structure.config import (
+    BURNIN, EXTRAPARAMS,
+    MAINPARAMS, NUMREPS
+)
 
 log = logging.getLogger('runner')
 
@@ -78,15 +76,38 @@ def run(data, label, max_populations, executable=None, output_directory=None):
         extraparams.flush()
 
         # Run STRUCTURE.
-        with open(path('structure_runtime.log'), 'w') as runtime:
+        with open(path('structure_runtime.log'), mode='wb', buffering=0) as runtime, \
+                tqdm.tqdm(total=BURNIN + NUMREPS) as pbar:
             structure = subprocess.Popen(
                 [
                     os.path.expanduser(structure),
                     '-m', path('mainparams'),
                     '-e', path('extraparams'),
                 ],
-                stdout=runtime, stderr=sys.stderr,
+                stdout=subprocess.PIPE, stderr=sys.stderr,
             )
+
+            # This is effectively `structure.communicate()` but lets us inspect the lines, which is great for tqdm
+            started_MCMC = False
+            itercount = 0
+            rc = structure.poll()
+            while rc != 0:
+                while True:
+                    line = structure.stdout.readline()
+                    if not line:
+                        break
+                    runtime.write(line)
+                    if not started_MCMC:
+                        if b'starting MCMC' in line:
+                            started_MCMC = True
+                        else:
+                            continue
+                    line_header = line.split(b':')[0].strip()
+                    if line_header.isdigit() and int(line_header) > itercount:
+                        itercount = int(line_header)
+                        pbar.update(1)
+                rc = structure.poll()
+
             structure.communicate()
 
         return path('structure_results') + '_f'
