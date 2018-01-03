@@ -12,6 +12,7 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
+    'bidict',
     'coloredlogs',
     'matplotlib==2.1.0',
     'pandas==0.21.0',

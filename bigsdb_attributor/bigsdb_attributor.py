@@ -4,6 +4,7 @@ import logging
 import re
 import sys
 
+import bidict
 import pandas as pd
 
 
@@ -149,7 +150,7 @@ def prepare_for_structure(combined_df, sourcelookup):
 
     # Read in CSV containing look-up table of BIGSdb source fields to host source
     logging.debug('Reading %s', sourcelookup)
-    source_xref = pd.DataFrame.from_csv(sourcelookup)
+    source_xref = pd.read_csv(sourcelookup, index_col=0)
 
     # Map PopData in STRUCTURE dataframe using look-up table
     modified_structure_df = structure_df['PopData'].map(
@@ -163,11 +164,10 @@ def prepare_for_structure(combined_df, sourcelookup):
     )
 
     # Summarise unique host sources and assign an integer
-    integers, reversed_integers = {}, {}
+    integers = bidict.bidict()
     populations = structure_df.groupby('PopFlag')['PopData'].unique().to_dict()
     for v, k in enumerate(populations['ref'], start=1):
         integers[str(k)] = str(v)
-        reversed_integers[v] = str(k)
 
     # Assign everything in the test set to 0.
     # (0 is an invalid number for STRUCTURE, but that's OK because it won't read
@@ -181,17 +181,17 @@ def prepare_for_structure(combined_df, sourcelookup):
     for k, v in integers.items():
         logging.debug('\t{:>20}: {}'.format(k, v))
 
-    # Update STRUCTURE data frame
-    structure_df['PopData'] = structure_df['PopData'].map(integers)
+    # Update STRUCTURE data frame (need .get since `not isinstance(bidict, dict)`,
+    # which confuses pandas type sniffing)
+    structure_df['PopData'] = structure_df['PopData'].map(integers.get)
 
     # Set PopFlag based on original dataset (i.e. ON for refs and OFF for tests)
     structure_df.replace({'PopFlag': {'ref': 1, 'test': 0}}, inplace=True)
 
     # Make sure all values are integers
-    modified_structure_df = structure_df.astype(int)
-    structure_df = modified_structure_df
+    structure_df = structure_df.astype(int)
 
-    # Remove Pandas index and set to "Label"
+    # Remove Pandas index header and set to "Label"
     structure_df.set_index('Label', inplace=True)
 
     # Remove headers for "Label", "PopData", and "PopFlag"
@@ -203,7 +203,7 @@ def prepare_for_structure(combined_df, sourcelookup):
     ]
     structure_df.index.name = ''
 
-    return structure_df, reversed_integers
+    return structure_df, integers
 
 
 def read_and_validate(testdata, refdata):

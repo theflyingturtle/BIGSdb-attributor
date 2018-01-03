@@ -101,18 +101,21 @@ def main():
     # Read and validate data
     combined = read_and_validate(args.datafile, args.reffile)
 
-    # Write STRUCTURE data frame to file
+    # Write STRUCTURE data frame to file and figure out how many populations we have
     logging.info('Stop! STRUCTURE time')
     structured, mapping = prepare_for_structure(combined, args.sourcelookup)
     structure_file = os.path.join(args.output_directory, 'STRUCTUREInput.tsv')
     structured.to_csv(structure_file, sep='\t')
+
+    # Run STRUCTURE
     logging.info('Running STRUCTURE.....')
     results_path = structure_runner.run(
         structure_file,
         label=1,
-        max_populations=structured.iloc[:, 0].nunique(
-        ),
+        # -1 because we don't want to count reference (i.e. 0) as a pop
+        max_populations=len(mapping) - 1,
         output_directory=args.output_directory,
+        executable=args.attributor_path,
     )
 
     logging.info('STRUCTURE finished; parsing results')
@@ -120,7 +123,9 @@ def main():
     inferred_ancestry = structure_parser.parse(results_path)[
         'InferredAncestry'
     ]
-    inferred_ancestry.columns = [mapping[c] for c in inferred_ancestry.columns]
+    inferred_ancestry.columns = inferred_ancestry.columns.astype(
+        str,
+    ).map(mapping.inv.get)
     inferred_ancestry_path = os.path.join(
         args.output_directory, 'STRUCTURE_Inferred_Ancestry.csv',
     )
@@ -128,13 +133,11 @@ def main():
 
     # Log location of CSV containing inferred ancestries of test isolates
     logging.info(
-        'Inferred ancestries for test isolates extracted and processed.',
-    )
-    logging.info(
-        'Saved as STRUCTURE_Inferred_Ancestry.csv in the directory called %s.',
+        'Inferred ancestries for test isolates extracted and processed.'
+        'Saved as STRUCTURE_Inferred_Ancestry.csv in the directory called %s.'
+        'Text and visual summaries of results follow.',
         args.output_directory,
     )
-    logging.info('Text and visual summaries of results follow.')
 
     # import ipdb
     # ipdb.set_trace()

@@ -56,7 +56,7 @@ def run(data, label, max_populations, executable=None, output_directory=None):
     # Parse STRUCTURE input dataframe to extract various bits of data.
     if not os.path.isfile(data):
         raise StructureRuntimeError('Could not find file {}.'.format(data))
-    df = pd.DataFrame.from_csv(data, sep='\t')
+    df = pd.read_csv(data, index_col=0, sep='\t')
     n, n_l = len(df), sum(c.startswith('Locus_') for c in df.columns)
 
     # Set up mainparams and extraparams.
