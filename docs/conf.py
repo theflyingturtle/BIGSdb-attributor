@@ -13,8 +13,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import sys
 import os
+import sys
+
+import bigsdb_attributor
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -31,7 +33,6 @@ project_root = os.path.dirname(cwd)
 # version is used.
 sys.path.insert(0, project_root)
 
-import bigsdb_attributor
 
 # -- General configuration ---------------------------------------------
 
@@ -56,7 +57,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'BIGSdb-attributor'
-copyright = u"2017, Melissa Jansen van Rensburg"
+copyright = u'2017, Melissa Jansen van Rensburg'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -208,9 +209,11 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto/manual]).
 latex_documents = [
-    ('index', 'bigsdb_attributor.tex',
-     u'BIGSdb-attributor Documentation',
-     u'Melissa Jansen van Rensburg', 'manual'),
+    (
+        'index', 'bigsdb_attributor.tex',
+        u'BIGSdb-attributor Documentation',
+        u'Melissa Jansen van Rensburg', 'manual',
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at
@@ -239,9 +242,11 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'bigsdb_attributor',
-     u'BIGSdb-attributor Documentation',
-     [u'Melissa Jansen van Rensburg'], 1)
+    (
+        'index', 'bigsdb_attributor',
+        u'BIGSdb-attributor Documentation',
+        [u'Melissa Jansen van Rensburg'], 1,
+    ),
 ]
 
 # If true, show URL addresses after external links.
@@ -254,12 +259,14 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'bigsdb_attributor',
-     u'BIGSdb-attributor Documentation',
-     u'Melissa Jansen van Rensburg',
-     'bigsdb_attributor',
-     'One line description of project.',
-     'Miscellaneous'),
+    (
+        'index', 'bigsdb_attributor',
+        u'BIGSdb-attributor Documentation',
+        u'Melissa Jansen van Rensburg',
+        'bigsdb_attributor',
+        'One line description of project.',
+        'Miscellaneous',
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.

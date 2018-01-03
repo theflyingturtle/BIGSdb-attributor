@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 import logging
+
 logging.error("Add '00' to BURNIN, ADMBURNING and NUMREPS")
 
 MAINPARAMS = """\

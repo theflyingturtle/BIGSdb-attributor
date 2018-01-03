@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+# -*- coding: utf-8 -*-
 """Written by Katriel Cohn-Gordon (2016).
 
 STRUCTURE is population genetics software which has a terribly non-
@@ -12,17 +13,17 @@ import collections
 import distutils.spawn
 import logging
 import os
-import pandas as pd
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+
+import pandas as pd
 import xlrd
+from bigsdb_attributor.structure.config import EXTRAPARAMS, MAINPARAMS
 
-from bigsdb_attributor.structure.config import MAINPARAMS, EXTRAPARAMS
-
-log = logging.getLogger("runner")
+log = logging.getLogger('runner')
 
 
 class StructureRuntimeError(RuntimeError):
@@ -38,9 +39,11 @@ def run(data, label, max_populations, executable=None, output_directory=None):
 
     """
     # Try to find STRUCTURE binary.
-    structure = executable or distutils.spawn.find_executable("structure")
+    structure = executable or distutils.spawn.find_executable('structure')
     if structure is None:
-        raise StructureRuntimeError("Could not find STRUCTURE binary; is it on your $PATH?")
+        raise StructureRuntimeError(
+            'Could not find STRUCTURE binary; is it on your $PATH?',
+        )
         # TODO(propagate this through multiprocessing)
 
     # Set up output directory.
@@ -52,31 +55,38 @@ def run(data, label, max_populations, executable=None, output_directory=None):
 
     # Parse STRUCTURE input dataframe to extract various bits of data.
     if not os.path.isfile(data):
-        raise StructureRuntimeError("Could not find file {}.".format(data))
-    df = pd.DataFrame.from_csv(data, sep="\t")
-    n, n_l = len(df), sum(c.startswith("Locus_") for c in df.columns)
+        raise StructureRuntimeError('Could not find file {}.'.format(data))
+    df = pd.DataFrame.from_csv(data, sep='\t')
+    n, n_l = len(df), sum(c.startswith('Locus_') for c in df.columns)
 
     # Set up mainparams and extraparams.
-    with open(path("mainparams"), "w") as mainparams, \
-            open(path("extraparams"), "w") as extraparams:
+    with open(path('mainparams'), 'w') as mainparams, \
+            open(path('extraparams'), 'w') as extraparams:
         # TODO(K): I removed the -1 from maxpops. Why was it there?
-        mainparams.write(MAINPARAMS.format(maxpops=max_populations,
-                                           inputfile=data,
-                                           outputfile=path(
-                                               "structure_results"),
-                                           n=n,
-                                           n_l=n_l,
-                                           label=label))
+        mainparams.write(MAINPARAMS.format(
+            maxpops=max_populations,
+            inputfile=data,
+            outputfile=path(
+                'structure_results',
+            ),
+            n=n,
+            n_l=n_l,
+            label=label,
+        ))
         extraparams.write(EXTRAPARAMS)
         mainparams.flush()
         extraparams.flush()
 
         # Run STRUCTURE.
-        with open(path("structure_runtime.log"), "w") as runtime:
-            structure = subprocess.Popen([os.path.expanduser(structure),
-                                          "-m", path("mainparams"),
-                                          "-e", path("extraparams")],
-                                         stdout=runtime, stderr=sys.stderr)
+        with open(path('structure_runtime.log'), 'w') as runtime:
+            structure = subprocess.Popen(
+                [
+                    os.path.expanduser(structure),
+                    '-m', path('mainparams'),
+                    '-e', path('extraparams'),
+                ],
+                stdout=runtime, stderr=sys.stderr,
+            )
             structure.communicate()
 
-        return path("structure_results") + "_f"
+        return path('structure_results') + '_f'

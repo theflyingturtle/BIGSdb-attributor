@@ -1,56 +1,69 @@
+# -*- coding: utf-8 -*-
 import argparse
-import coloredlogs
 import logging
 import os
 import shutil
 import sys
 
-from .bigsdb_attributor import read_and_validate, prepare_for_structure
-from bigsdb_attributor.structure import runner as structure_runner, parser as structure_parser
+import coloredlogs
+from bigsdb_attributor.structure import parser as structure_parser
+from bigsdb_attributor.structure import runner as structure_runner
+
+from .bigsdb_attributor import prepare_for_structure, read_and_validate
 
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Takes BIGS data exports for data and reference sets, "
-        "converts to STRUCTURE/iSource format, and runs STRUCTURE/iSource for "
-        "host attribution.  Input spreadsheets MUST have same headers.")
+        description='Takes BIGS data exports for data and reference sets, '
+        'converts to STRUCTURE/iSource format, and runs STRUCTURE/iSource for '
+        'host attribution.  Input spreadsheets MUST have same headers.',
+    )
     parser.add_argument(
-        "--datafile",
+        '--datafile',
         required=True,
-        help="BIGSdb data export of isolates to be analysed in xlsx format")
+        help='BIGSdb data export of isolates to be analysed in xlsx format',
+    )
     parser.add_argument(
-        "--reffile",
+        '--reffile',
         required=True,
-        help="BIGSdb data export of reference set in xlsx format")
+        help='BIGSdb data export of reference set in xlsx format',
+    )
     parser.add_argument(
-        "--output-directory",
-        help="output directory to create",
-        default="output")
+        '--output-directory',
+        help='output directory to create',
+        default='output',
+    )
     parser.add_argument(
-        "--overwrite",
-        help="Overwrite output directory if it already exists",
-        action="store_true")
+        '--overwrite',
+        help='Overwrite output directory if it already exists',
+        action='store_true',
+    )
     parser.add_argument(
-        "--logfile",
-        help="name of log file (default: %(default)s)",
-        default="Prep.log")
+        '--logfile',
+        help='name of log file (default: %(default)s)',
+        default='Prep.log',
+    )
     parser.add_argument(
-        "--sourcelookup",
+        '--sourcelookup',
         required=True,
-        help="CSV file containing two columns mapping allowed source values"
-        "from PubMLST to aggregated attribution source.  Headers must be"
-        "'original' and 'aggregated' in that order.")
+        help='CSV file containing two columns mapping allowed source values'
+        'from PubMLST to aggregated attribution source.  Headers must be'
+        "'original' and 'aggregated' in that order.",
+    )
     parser.add_argument(
-        "--mode",
-        help="Attribution program to use",
+        '--mode',
+        help='Attribution program to use',
         required=True,
         choices=[
-            "structure",
-            'isource'])
+            'structure',
+            'isource',
+        ],
+    )
     parser.add_argument(
-        "--attributor-path",
-        help="Full path to STRUCTURE or iSource",
-        required=True)
+        '--attributor-path',
+        help='Full path to STRUCTURE or iSource',
+        required=True,
+    )
 
     return parser.parse_args()
 
@@ -60,13 +73,15 @@ def setup_output_directory(output, overwrite):
         if overwrite:
             logging.info(
                 "Directory called '%s' already exists. Clearing it.",
-                output)
+                output,
+            )
             shutil.rmtree(output)
         else:
             logging.fatal(
                 "Directory called '%s' already exists, choose a new name"
-                "or use the overwrite option.",
-                output)
+                'or use the overwrite option.',
+                output,
+            )
             sys.exit(1)
 
     logging.debug("Creating new directory called '%s'", output)
@@ -75,7 +90,8 @@ def setup_output_directory(output, overwrite):
 
 def main():
     # Initial setup
-    coloredlogs.install(level='DEBUG')  # or logging.basicConfig(level=logging.DEBUG)
+    # or logging.basicConfig(level=logging.DEBUG)
+    coloredlogs.install(level='DEBUG')
     logging.captureWarnings(True)
     args = parse_args()
     setup_output_directory(args.output_directory, args.overwrite)
@@ -86,27 +102,39 @@ def main():
     combined = read_and_validate(args.datafile, args.reffile)
 
     # Write STRUCTURE data frame to file
-    logging.info("Stop! STRUCTURE time")
+    logging.info('Stop! STRUCTURE time')
     structured, mapping = prepare_for_structure(combined, args.sourcelookup)
-    structure_file = os.path.join(args.output_directory, "STRUCTUREInput.tsv")
-    structured.to_csv(structure_file, sep="\t")
-    logging.info("Running STRUCTURE.....")
-    results_path = structure_runner.run(structure_file,
-                                        label=1,
-                                        max_populations=structured.iloc[:, 0].nunique(),
-                                        output_directory=args.output_directory)
+    structure_file = os.path.join(args.output_directory, 'STRUCTUREInput.tsv')
+    structured.to_csv(structure_file, sep='\t')
+    logging.info('Running STRUCTURE.....')
+    results_path = structure_runner.run(
+        structure_file,
+        label=1,
+        max_populations=structured.iloc[:, 0].nunique(
+        ),
+        output_directory=args.output_directory,
+    )
 
-    logging.info("STRUCTURE finished; parsing results")
+    logging.info('STRUCTURE finished; parsing results')
     # Write inferred ancestries to CSV
-    inferred_ancestry = structure_parser.parse(results_path)["InferredAncestry"]
+    inferred_ancestry = structure_parser.parse(results_path)[
+        'InferredAncestry'
+    ]
     inferred_ancestry.columns = [mapping[c] for c in inferred_ancestry.columns]
-    inferred_ancestry.to_csv(os.path.join(output, "STRUCTURE_Inferred_Ancestry.csv"))
+    inferred_ancestry_path = os.path.join(
+        args.output_directory, 'STRUCTURE_Inferred_Ancestry.csv',
+    )
+    inferred_ancestry.to_csv(inferred_ancestry_path)
 
     # Log location of CSV containing inferred ancestries of test isolates
-    logging.info("Inferred ancestries for test isolates extracted and processed.")
-    logging.info("Saved as STRUCTURE_Inferred_Ancestry.csv in the directory called %s.",
-                 args.output_directory)
-    logging.info("Text and visual summaries of results follow.")
+    logging.info(
+        'Inferred ancestries for test isolates extracted and processed.',
+    )
+    logging.info(
+        'Saved as STRUCTURE_Inferred_Ancestry.csv in the directory called %s.',
+        args.output_directory,
+    )
+    logging.info('Text and visual summaries of results follow.')
 
     # import ipdb
     # ipdb.set_trace()

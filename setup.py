@@ -3,7 +3,7 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open('README.rst') as readme_file:
     readme = readme_file.read()
@@ -12,11 +12,11 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    "coloredlogs",
-    "matplotlib==2.1.0",
-    "pandas==0.21.0",
-    "tqdm==4.19.4",
-    "xlrd==1.1.0",
+    'coloredlogs',
+    'matplotlib==2.1.0',
+    'pandas==0.21.0',
+    'tqdm==4.19.4',
+    'xlrd==1.1.0',
 ]
 
 setup_requirements = [
@@ -31,21 +31,21 @@ test_requirements = [
 setup(
     name='bigsdb_attributor',
     version='0.1.0',
-    description="Attribute human disease isolates to host sources"
-    "using STRUCTURE or iSource",
+    description='Attribute human disease isolates to host sources'
+    'using STRUCTURE or iSource',
     long_description=readme + '\n\n' + history,
-    author="Melissa Jansen van Rensburg",
+    author='Melissa Jansen van Rensburg',
     author_email='m.jansenvr@imperial.ac.uk',
     url='https://github.com/theflyingturtle/bigsdb_attributor',
     packages=find_packages(include=['bigsdb_attributor']),
     entry_points={
         'console_scripts': [
-            'bigsdb_attributor=bigsdb_attributor.cli:main'
-        ]
+            'bigsdb_attributor=bigsdb_attributor.cli:main',
+        ],
     },
     include_package_data=True,
     install_requires=requirements,
-    license="GNU General Public License v3",
+    license='GNU General Public License v3',
     zip_safe=False,
     keywords='bigsdb_attributor',
     classifiers=[
