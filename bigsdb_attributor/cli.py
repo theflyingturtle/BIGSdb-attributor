@@ -9,7 +9,10 @@ import coloredlogs
 from bigsdb_attributor.structure import parser as structure_parser
 from bigsdb_attributor.structure import runner as structure_runner
 
-from .bigsdb_attributor import prepare_for_structure, read_and_validate
+from .bigsdb_attributor import prepare_for_structure,\
+    read_test_and_ref_files,\
+    validate_and_fixup,\
+    postprocess
 
 
 def parse_args():
@@ -99,7 +102,8 @@ def main():
     logging.getLogger().addHandler(fh)
 
     # Read and validate data
-    combined = read_and_validate(args.datafile, args.reffile)
+    testdata, refdata = read_test_and_ref_files(args.datafile, args.reffile)
+    combined = validate_and_fixup(testdata, refdata)
 
     # Write STRUCTURE data frame to file and figure out how many populations we have
     logging.info('Stop! STRUCTURE time')
@@ -134,14 +138,13 @@ def main():
 
     # Log location of CSV containing inferred ancestries of test isolates
     logging.info(
-        'Inferred ancestries for test isolates extracted and processed.'
-        'Saved as STRUCTURE_Inferred_Ancestry.csv in the directory called %s.'
+        'Inferred ancestries for test isolates extracted and processed. '
+        'Saved as STRUCTURE_Inferred_Ancestry.csv in `%s`. '
         'Text and visual summaries of results follow.',
         args.output_directory,
     )
 
-    # import ipdb
-    # ipdb.set_trace()
+    postprocess(testdata, inferred_ancestry, args.output_directory)
 
 
 if __name__ == '__main__':

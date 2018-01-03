@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import bidict
 import logging
+import os
+import pandas as pd
 import re
 import sys
+import textwrap
 
-import bidict
-import pandas as pd
-
+from matplotlib import pyplot as plt
+from bigsdb_attributor.helpers import colour_of
 
 """Written by Melissa Jansen van Rensburg and Katriel Cohn-Gordon (2017).
 
@@ -41,19 +44,20 @@ def read_test_and_ref_files(testdata, refdata):
     ref = pd.read_excel(refdata, index_col=None)
     ref['received_date'] = pd.to_datetime(ref['received_date'], dayfirst=True)
 
+    return test_data, ref
+
+
+def validate_and_fixup(test, ref):
     # Merge dataframes and indicate source of isolate (data vs reference).
     # Flatten MultiIndex.
     combined_df = pd.concat(
-        [test_data, ref], keys=[
+        [test, ref], keys=[
             'test', 'ref',
         ], axis=0,
     ).reset_index()
     # Rename former MultiIndex column
     combined_df.rename(columns={'level_0': 'dataset'}, inplace=True)
-    return combined_df
 
-
-def validate_and_fixup(combined_df):
     # Quit if any essential headers are missing
     prefix = ['year', 'month', 'received_date', 'age_yr', 'sex']
     MLST = [
@@ -206,7 +210,97 @@ def prepare_for_structure(combined_df, sourcelookup):
     return structure_df, integers
 
 
-def read_and_validate(testdata, refdata):
-    combined = read_test_and_ref_files(testdata, refdata)
-    combined = validate_and_fixup(combined)
-    return combined
+def postprocess(test_data, ancestries, outdir):
+    # Merge original test set dataframe with inferred ancestries dataframe; specify columns with attribution data
+    # Set index for test set to prepare for merge
+    test_data.set_index('id', inplace=True)
+
+    # Merge data
+    anc_data = pd.merge(
+        test_data, ancestries, how='inner',
+        right_index=True, left_index=True,
+    )
+
+    # Differentiate Oxfordshire and Tyneside isolates
+    # Add column indicating site based on isolate name
+    anc_data['site'] = anc_data['isolate'].str[:3]
+
+    # Convert site id to full name
+    anc_data['site'] = anc_data['site'].replace(
+        {'OXC': 'Oxfordshire', 'NWC': 'Tyneside'},
+    )
+
+    # Get list of sources ordered from most to least common
+    total_means = anc_data[ancestries.columns].mean(
+    ).sort_values(ascending=False)
+
+    # Fill dates from private data
+    anc_data['received_date'].fillna(
+        anc_data['private_isolation_date'], inplace=True,
+    )
+
+    # Refresh the year column
+    anc_data['year'] = anc_data['received_date'].dt.year
+
+    # Get time period (in years)
+    start = anc_data['received_date'].min().strftime('%B %Y')
+    finish = anc_data['received_date'].max().strftime('%B %Y')
+
+    # Log table of probabilities
+    no_test_isolates = len(anc_data)
+
+    # Generate corresponding bar graph coloured according to source
+    filename = 'OverallAttribution.svg'
+    title_total = 'Estimated proportion of human disease isolates attributed to animal and environmental '\
+                  'sources.  Probabilistic assignment of {} isolates collected between {} and {} in Oxfordshire '\
+                  'was carried out using the noadmixture model in STRUCTURE.'
+    title_total = title_total.format(no_test_isolates, start, finish)
+    title_total = '\n'.join(textwrap.wrap(title_total))
+    plot(
+        total_means,
+        os.path.join(outdir, filename),
+        xlabel='Sources',
+        ylabel='Proportion of isolates',
+        title=title_total,
+        kind='bar',
+    )
+    logging.debug(
+        'Probabilistic assignment of %s isolates collected in Oxfordshire between %s and %s:\n%s'
+        '\nCorresponding graph saved as %s.',
+        no_test_isolates,
+        start,
+        finish,
+        total_means.to_string(),
+        filename,
+    )
+
+
+def plot(
+    df,
+    filename,
+    xlabel='',
+    ylabel='',
+    title='',
+    **plot_args
+):
+
+    fig = df.plot(color=list(df.index.map(colour_of)), **plot_args)
+
+    # Axis labels
+    fig.set_xlabel(xlabel)
+    fig.set_ylabel(ylabel)
+
+    # Axis ticks
+    fig.xaxis.set_ticks_position('none')
+    fig.yaxis.set_ticks_position('left')
+
+    # Figure title
+    plt.title(title)
+
+    # Rotate labels on x-axis
+    plt.xticks(rotation='45', ha='right')
+
+    # Write file
+    plt.savefig(filename, bbox_inches='tight', dpi=300, format='svg')
+
+    return fig
