@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import bidict
+import collections
 import logging
 import os
 import pandas as pd
@@ -10,6 +11,10 @@ import textwrap
 
 from matplotlib import pyplot as plt
 from bigsdb_attributor.helpers import colour_of
+from bigsdb_attributor.structure import parser as structure_parser
+from bigsdb_attributor.structure import runner as structure_runner
+from bigsdb_attributor.isource import parser as isource_parser
+from bigsdb_attributor.isource import runner as isource_runner
 
 """Written by Melissa Jansen van Rensburg and Katriel Cohn-Gordon (2017).
 
@@ -17,6 +22,27 @@ Takes test and reference sets from BIGSdb, converts to STRUCTURE/iSource
 format, runs STRUCTURE/iSource, and parses outputs.
 
 """
+
+
+def parse_structure(path, mapping):
+    inferred_ancestry = structure_parser.parse(path)['InferredAncestry']
+    inferred_ancestry.columns = inferred_ancestry.columns.astype(
+        str,
+    ).map(mapping.inv.get)
+    return inferred_ancestry
+
+
+def parse_isource(path, mapping):
+    logging.fatal('not yet implemented')
+    raise NotImplementedError()
+    # import ipdb
+    # ipdb.set_trace()
+    groups, rows = mapping
+    inferred_ancestry = isource_parser.parse(path)['InferredAncestry']
+    inferred_ancestry.columns = inferred_ancestry.columns.astype(
+        str,
+    ).map(mapping.inv.get)
+    return inferred_ancestry
 
 
 def read_test_and_ref_files(testdata, refdata):
@@ -132,6 +158,72 @@ def validate_and_fixup(test, ref):
     return combined_df
 
 
+def remap_col_by_sourcelookup(df, group, col, sourcelookup):
+    logging.debug(
+        'Remapping column %s into integers according to its %s, aggregating by %s',
+        col,
+        group,
+        sourcelookup,
+    )
+
+    logging.debug('Reading %s', sourcelookup)
+    source_xref = pd.read_csv(sourcelookup, index_col=0)
+
+    df[col] = df[col].map(
+        source_xref['aggregated'],
+    )
+
+    logging.debug('Remapped column %s to integers', col)
+    integers = bidict.bidict()
+    populations = df.groupby(group)[col].unique().to_dict()
+    for v, k in enumerate(populations['ref'], start=1):
+        integers[str(k)] = str(v)
+
+    # Assign everything in the test set to 0.
+    # (0 is an invalid number for STRUCTURE, but that's OK because it won't read
+    # this zero, because it only appears in the test set.)
+    test_populations = {k: 0 for k in populations['test']}
+    assert not(test_populations.keys() & integers.keys()), \
+        ('%s appears in both ref and test population.' % col)
+    integers.update(test_populations)
+
+    # Replace col with corresponding integer
+    for k, v in integers.items():
+        logging.debug('\t{:>20}: {}'.format(k, v))
+    df[col] = df[col].map(integers.get)
+
+    return integers
+
+
+def prepare_for_isource(combined_df, sourcelookup):
+    # Create the new iSource data frame
+    iSource_df = pd.DataFrame()
+
+    # Copy across relevant data and relabel columns for iSource
+    iSource_df[[
+        'id', 'ST', 'aspA', 'glnA', 'gltA',
+        'glyA', 'pgm', 'tkt', 'uncA', 'group', 'dataset',
+    ]] = \
+        combined_df[[
+            'id', 'ST (MLST)', 'aspA', 'glnA', 'gltA',
+            'glyA', 'pgm', 'tkt', 'uncA', 'source', 'dataset',
+        ]]
+
+    integers = remap_col_by_sourcelookup(
+        iSource_df, group='dataset', col='group', sourcelookup=sourcelookup,
+    )
+
+    del iSource_df['dataset']
+    iSource_df.set_index('ST', inplace=True)
+
+    iSource_df = iSource_df.astype(int)
+
+    row_number_to_id = dict(enumerate(iSource_df['id']))
+    del iSource_df['id']
+
+    return iSource_df, (integers, row_number_to_id)
+
+
 def prepare_for_structure(combined_df, sourcelookup):
     # Create the new STRUCTURE data frame
     structure_df = pd.DataFrame()
@@ -146,48 +238,9 @@ def prepare_for_structure(combined_df, sourcelookup):
             'glyA', 'pgm', 'tkt', 'uncA',
         ]]
 
-    # Get PopData from source
-    logging.debug(
-        "Extracted PopData from 'source' column using host source groups defined in %s",
-        sourcelookup,
+    integers = remap_col_by_sourcelookup(
+        structure_df, group='PopFlag', col='PopData', sourcelookup=sourcelookup,
     )
-
-    # Read in CSV containing look-up table of BIGSdb source fields to host source
-    logging.debug('Reading %s', sourcelookup)
-    source_xref = pd.read_csv(sourcelookup, index_col=0)
-
-    # Map PopData in STRUCTURE dataframe using look-up table
-    modified_structure_df = structure_df['PopData'].map(
-        source_xref['aggregated'],
-    )
-    structure_df['PopData'] = modified_structure_df
-
-    # Convert PopData to integers
-    logging.debug(
-        'PopData text converted to integers (required by STRUCTURE):',
-    )
-
-    # Summarise unique host sources and assign an integer
-    integers = bidict.bidict()
-    populations = structure_df.groupby('PopFlag')['PopData'].unique().to_dict()
-    for v, k in enumerate(populations['ref'], start=1):
-        integers[str(k)] = str(v)
-
-    # Assign everything in the test set to 0.
-    # (0 is an invalid number for STRUCTURE, but that's OK because it won't read
-    # this zero, because it only appears in the test set which has PopFlag set to 0.)
-    test_populations = {k: 0 for k in populations['test']}
-    assert not(test_populations.keys() & integers.keys()), \
-        'PopData appears in both ref and test population.'
-    integers.update(test_populations)
-
-    # Replace string in PopData with corresponding integer
-    for k, v in integers.items():
-        logging.debug('\t{:>20}: {}'.format(k, v))
-
-    # Update STRUCTURE data frame (need .get since `not isinstance(bidict, dict)`,
-    # which confuses pandas type sniffing)
-    structure_df['PopData'] = structure_df['PopData'].map(integers.get)
 
     # Set PopFlag based on original dataset (i.e. ON for refs and OFF for tests)
     structure_df.replace({'PopFlag': {'ref': 1, 'test': 0}}, inplace=True)
@@ -208,6 +261,24 @@ def prepare_for_structure(combined_df, sourcelookup):
     structure_df.index.name = ''
 
     return structure_df, integers
+
+
+# TODO(katriel) these should really be on Structure/iSource classes with a common interface, so that
+# we can store state (e.g. population mappings) without having to pass it back and forth through the
+# cli. Future work.
+mode = collections.namedtuple('mode', 'prepare run parse'.split())
+runners = dict(
+    structure=mode(
+        prepare=prepare_for_structure,
+        run=structure_runner.run,
+        parse=parse_structure,
+    ),
+    isource=mode(
+        prepare=prepare_for_isource,
+        run=isource_runner.run,
+        parse=parse_isource,
+    ),
+)
 
 
 def postprocess(test_data, ancestries, outdir):

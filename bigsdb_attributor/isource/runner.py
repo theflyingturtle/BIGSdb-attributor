@@ -28,7 +28,7 @@ def run(data, label, max_populations, executable=None, output_directory=None):
         os.mkdir(output_directory)
 
     def path(f=''):
-        os.path.join(output_directory, f)
+        return os.path.join(output_directory, f)
 
     # Parse iSource input dataframe to extract various bits of data
     if not os.path.isfile(data):

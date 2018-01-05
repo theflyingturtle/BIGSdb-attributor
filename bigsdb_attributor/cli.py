@@ -6,13 +6,12 @@ import shutil
 import sys
 
 import coloredlogs
-from bigsdb_attributor.structure import parser as structure_parser
-from bigsdb_attributor.structure import runner as structure_runner
 
-from .bigsdb_attributor import prepare_for_structure,\
-    read_test_and_ref_files,\
+
+from .bigsdb_attributor import read_test_and_ref_files,\
     validate_and_fixup,\
-    postprocess
+    postprocess, \
+    runners
 
 
 def parse_args():
@@ -91,6 +90,29 @@ def setup_output_directory(output, overwrite):
     os.mkdir(output)
 
 
+def run(args, combined):
+    logging.info('Stop! Population genetics time.')
+    data, mapping = runners[args.mode].prepare(combined, args.sourcelookup)
+    data_file = os.path.join(args.output_directory, 'runner-input.tsv')
+    data.to_csv(data_file, sep='\t')
+
+    logging.info('Running...')
+    # import ipdb
+    # ipdb.set_trace()
+    results_path = runners[args.mode].run(
+        data_file,
+        label=1,
+        # -1 because we don't want to count reference (i.e. 0) as a pop
+        max_populations=len(mapping) - 1,
+        output_directory=args.output_directory,
+        executable=args.attributor_path,
+    )
+
+    logging.info('Run finished; parsing results')
+    inferred_ancestry = runners[args.mode].parse(results_path, mapping)
+    return inferred_ancestry
+
+
 def main():
     # Initial setup
     # or logging.basicConfig(level=logging.DEBUG)
@@ -105,34 +127,12 @@ def main():
     testdata, refdata = read_test_and_ref_files(args.datafile, args.reffile)
     combined = validate_and_fixup(testdata, refdata)
 
-    # Write STRUCTURE data frame to file and figure out how many populations we have
-    logging.info('Stop! STRUCTURE time')
-    structured, mapping = prepare_for_structure(combined, args.sourcelookup)
-    structure_file = os.path.join(args.output_directory, 'STRUCTUREInput.tsv')
-    structured.to_csv(structure_file, sep='\t')
-
-    # Run STRUCTURE
-    logging.info('Running STRUCTURE.....')
-    results_path = structure_runner.run(
-        structure_file,
-        label=1,
-        # -1 because we don't want to count reference (i.e. 0) as a pop
-        max_populations=len(mapping) - 1,
-        output_directory=args.output_directory,
-        executable=args.attributor_path,
-    )
-
-    logging.info('STRUCTURE finished; parsing results')
+    # Go go gadget population genetics
+    inferred_ancestry = run(args, combined)
 
     # Write inferred ancestries to CSV
-    inferred_ancestry = structure_parser.parse(results_path)[
-        'InferredAncestry'
-    ]
-    inferred_ancestry.columns = inferred_ancestry.columns.astype(
-        str,
-    ).map(mapping.inv.get)
     inferred_ancestry_path = os.path.join(
-        args.output_directory, 'STRUCTURE_Inferred_Ancestry.csv',
+        args.output_directory, 'inferred-ancestry.csv',
     )
     inferred_ancestry.to_csv(inferred_ancestry_path)
 
