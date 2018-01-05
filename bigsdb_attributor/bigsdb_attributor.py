@@ -33,15 +33,19 @@ def parse_structure(path, mapping):
 
 
 def parse_isource(path, mapping):
-    logging.fatal('not yet implemented')
-    raise NotImplementedError()
-    # import ipdb
-    # ipdb.set_trace()
+    logging.debug('Hackily parsing iSource results file %s', path)
     groups, rows = mapping
     inferred_ancestry = isource_parser.parse(path)['InferredAncestry']
     inferred_ancestry.columns = inferred_ancestry.columns.astype(
         str,
-    ).map(mapping.inv.get)
+    ).map(groups.inv.get)
+
+    assert len(rows) == len(
+        inferred_ancestry,
+    ), 'isource index mapping shapes went wrong'
+
+    inferred_ancestry.index = inferred_ancestry.index.map(rows.get)
+    inferred_ancestry.index.name = 'ST'
     return inferred_ancestry
 
 
@@ -215,10 +219,10 @@ def prepare_for_isource(combined_df, sourcelookup):
 
     del iSource_df['dataset']
     iSource_df.set_index('ST', inplace=True)
-
     iSource_df = iSource_df.astype(int)
 
-    row_number_to_id = dict(enumerate(iSource_df['id']))
+    test_isolates = iSource_df[iSource_df['group'] == 0]
+    row_number_to_id = dict(enumerate(test_isolates['id']))
     del iSource_df['id']
 
     return iSource_df, (integers, row_number_to_id)

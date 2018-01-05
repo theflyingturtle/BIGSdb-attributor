@@ -96,9 +96,7 @@ def run(args, combined):
     data_file = os.path.join(args.output_directory, 'runner-input.tsv')
     data.to_csv(data_file, sep='\t')
 
-    logging.info('Running...')
-    # import ipdb
-    # ipdb.set_trace()
+    logging.debug('Running...')
     results_path = runners[args.mode].run(
         data_file,
         label=1,
@@ -108,7 +106,7 @@ def run(args, combined):
         executable=args.attributor_path,
     )
 
-    logging.info('Run finished; parsing results')
+    logging.debug('Run finished; parsing results')
     inferred_ancestry = runners[args.mode].parse(results_path, mapping)
     return inferred_ancestry
 
@@ -139,9 +137,9 @@ def main():
     # Log location of CSV containing inferred ancestries of test isolates
     logging.info(
         'Inferred ancestries for test isolates extracted and processed. '
-        'Saved as STRUCTURE_Inferred_Ancestry.csv in `%s`. '
+        'Saved as %s. '
         'Text and visual summaries of results follow.',
-        args.output_directory,
+        inferred_ancestry_path,
     )
 
     postprocess(testdata, inferred_ancestry, args.output_directory)

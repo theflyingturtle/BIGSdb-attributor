@@ -2,10 +2,10 @@
 import os
 import subprocess
 import sys
+import tqdm
 
-import pandas as pd
-
-ISOURCE_RESULTS = 'isource_results'
+from bigsdb_attributor.isource.config import N, THINNING, ALPHA, \
+    ISOURCE_RESULTS
 
 
 class ISourceRuntimeError(RuntimeError):
@@ -34,20 +34,36 @@ def run(data, label, max_populations, executable=None, output_directory=None):
     if not os.path.isfile(data):
         raise ISourceRuntimeError('Could not find file {}'.format(data))
 
-    with open(path('isource_runtime.log'), 'w') as runtime:
+    # Run iSource
+    with open(path('isource_runtime.log'), mode='wb', buffering=0) as runtime, \
+            tqdm.tqdm(total=N) as pbar:
         isource_p = subprocess.Popen(
             [
                 os.path.expanduser(executable),
                 data,
                 ISOURCE_RESULTS,
-                '1000',  # number of iterations
-                '1',  # thinning,
-                '1',  # Dirichlet uniform prior
+                str(N),  # number of iterations
+                str(THINNING),  # thinning,
+                str(ALPHA),  # Dirichlet uniform prior
             ],
-            stdout=runtime,
+            stdout=subprocess.PIPE,
             stderr=sys.stderr,
             cwd=path(),
         )
+        # This is effectively `.communicate()` but lets us inspect the lines, which is great for tqdm
+        rc = isource_p.poll()
+        pbar.update(1)
+        while rc != 0:
+            while True:
+                byte = isource_p.stdout.read(1)
+                if not byte:
+                    break
+                runtime.write(byte)
+                if byte == b'\r':
+                    pbar.update(0.5)  # There are two \rs per iteration
+                    runtime.write(b'\n')  # so the log file is more readable
+            rc = isource_p.poll()
+
         isource_p.communicate()
 
     return path('g_' + ISOURCE_RESULTS)

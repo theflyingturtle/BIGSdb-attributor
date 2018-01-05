@@ -7,10 +7,13 @@ NUMREPS = 10000
 
 if SPEEDY:
     import logging
-    logging.error("Add '00' to BURNIN, ADMBURNIN and NUMREPS")
-    ADMBURNIN /= 100
-    BURNIN /= 100
-    NUMREPS /= 100
+    BURNIN //= 100
+    ADMBURNIN //= 100
+    NUMREPS //= 100
+    logging.error(
+        "Add '00' to BURNIN (%i), ADMBURNIN (%i) and NUMREPS (%i)",
+        BURNIN, ADMBURNIN, NUMREPS,
+    )
 
 MAINPARAMS = """\
 #define OUTFILE  {outputfile}
