@@ -88,8 +88,9 @@ def validate_and_fixup(test, ref):
     # Rename former MultiIndex column
     combined_df.rename(columns={'level_0': 'dataset'}, inplace=True)
 
+    # TO DO - revise essential headers - no month header; only need time headers to do time analyses - simplest would be to do overall attribution and then have a breakdown over time option that would require at least year and/or DOI
     # Quit if any essential headers are missing
-    prefix = ['year', 'month', 'received_date', 'age_yr', 'sex']
+    prefix = ['year', 'received_date', 'age_yr', 'sex']
     MLST = [
         'aspA',
         'glnA',
@@ -178,6 +179,7 @@ def remap_col_by_sourcelookup(df, group, col, sourcelookup):
     )
 
     logging.debug('Remapped column %s to integers', col)
+    # TO DO - script fails if source is not filled in (specifically for humans) - need to completely fill human source column (perhaps warn if blank/not human); need to fail if ref set includes blanks for source
     integers = bidict.bidict()
     populations = df.groupby(group)[col].unique().to_dict()
     for v, k in enumerate(populations['ref'], start=1):
