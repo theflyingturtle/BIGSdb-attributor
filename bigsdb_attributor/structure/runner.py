@@ -7,7 +7,7 @@ machine-readable output format. This module invokes it using some
 configurable options, giving some data in an output directory.
 
 """
-
+# TO DO(K) force structure to add seed.txt to output directory
 import distutils.spawn
 import logging
 import os

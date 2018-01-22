@@ -11,6 +11,7 @@ import textwrap
 
 from matplotlib import pyplot as plt
 from bigsdb_attributor.helpers import colour_of
+from bigsdb_attributor.helpers import plot_individual_ancestry
 from bigsdb_attributor.structure import parser as structure_parser
 from bigsdb_attributor.structure import runner as structure_runner
 from bigsdb_attributor.isource import parser as isource_parser
@@ -327,11 +328,11 @@ def postprocess(test_data, ancestries, outdir):
     no_test_isolates = len(anc_data)
 
     # Generate corresponding bar graph coloured according to source
+    # TO DO append "Probabilistic assignments carried out using noadmixture model in STRUCTURE/iSource" to figure title as applicable
     filename = 'OverallAttribution.svg'
-    title_total = 'Estimated proportion of human disease isolates attributed to animal and environmental '\
-                  'sources.  Probabilistic assignment of {} isolates collected between {} and {} in Oxfordshire '\
-                  'was carried out using the noadmixture model in STRUCTURE.'
-    title_total = title_total.format(no_test_isolates, start, finish)
+    title_total = 'Estimated proportion of {} human disease isolates attributed to animal and '\
+                  'environmental sources.'
+    title_total = title_total.format(no_test_isolates)
     title_total = '\n'.join(textwrap.wrap(title_total))
     plot(
         total_means,
@@ -342,15 +343,38 @@ def postprocess(test_data, ancestries, outdir):
         kind='bar',
     )
     logging.debug(
-        'Probabilistic assignment of %s isolates collected in Oxfordshire between %s and %s:\n%s'
+        'Probabilistic assignment of %s human disease isolates to host sources:\n%s'
         '\nCorresponding graph saved as %s.',
         no_test_isolates,
-        start,
-        finish,
         total_means.to_string(),
         filename,
     )
 
+    # Graph assignment probabilities for individual isolates
+    # TO DO position legend BELOW x-axis label
+    # Save figures as pngs or svgs?
+    filename = 'IndividualAncestries.svg'
+    source_order = total_means.index.values.tolist()
+    title_inds = 'Source probabilities for {} human disease isolates. Isolates are represented as '\
+                    'vertical bars coloured according to estimated probability for each source. '\
+                    'Isolates are ordered horizontally by most likely source. Sources are separated '\
+                    'by black vertical lines.'
+    title_inds = title_inds.format(no_test_isolates)
+    title_inds = '\n'.join(textwrap.wrap(title_inds))
+
+    plot_individual_ancestry(
+        anc_data,
+        source_order,
+        os.path.join(outdir, filename),
+        title=title_inds,
+        xlabel='Isolates',
+        ylabel='Source probability',
+        )
+
+    logging.debug(
+        'Graph of assignment probabilities for individual isolates saved as %s',
+        filename,
+    )
 
 def plot(
     df,

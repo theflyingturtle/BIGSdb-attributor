@@ -74,14 +74,11 @@ def label_group_bar_table(ax, df):
         first = False
 
 
-def plot_individual_ancestry(data, path, title=None, xlabel=None):
+def plot_individual_ancestry(data, source_order, path, title=None, xlabel=None, ylabel=None):
     # Reorder data by most common population (i.e. column)
-    source_order = data.mean().sort_values(ascending=False)
-    source_order = source_order.index.values.tolist()
-
-    # dict(zip(source_order,range(len(source_order))))
+    data = data.loc[:, source_order]
     data['PopRank'] = data.idxmax(axis=1).map(source_order.index)
-    data['MaxProb'] = data.max(axis=1)
+    data['MaxProb'] = data[source_order].max(axis=1)
     data = data.sort_values(
         by=['PopRank', 'MaxProb'], ascending=[
             True, False,
@@ -101,6 +98,9 @@ def plot_individual_ancestry(data, path, title=None, xlabel=None):
 
     if xlabel:
         plot.set_xlabel(xlabel)
+
+    if ylabel:
+        plot.set_ylabel(ylabel)
 
     # Remove x-axis labels and ticks
     plot.xaxis.set_visible(False)
