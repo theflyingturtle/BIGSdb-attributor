@@ -2,13 +2,6 @@
 BIGSdb-attributor
 =================
 
-
-.. image:: https://img.shields.io/pypi/v/bigsdb_attributor.svg
-        :target: https://pypi.python.org/pypi/bigsdb_attributor
-
-.. image:: https://img.shields.io/travis/theflyingturtle/bigsdb_attributor.svg
-        :target: https://travis-ci.org/theflyingturtle/bigsdb_attributor
-
 .. image:: https://readthedocs.org/projects/bigsdb-attributor/badge/?version=latest
         :target: http://bigsdb-attributor.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
@@ -29,8 +22,7 @@ Installing
 
 To install as a user::
 
-  git clone https://github.com/theflyingturtle/BIGSdb-attributor
-  python3 BIGSdb-attributor/setup.py install
+  pip install git+https://github.com/theflyingturtle/BIGSdb-attributor
   bigsdb_attributor --help
 
 Developing
