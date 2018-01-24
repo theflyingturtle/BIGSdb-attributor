@@ -38,7 +38,7 @@ setup(
     author='Melissa Jansen van Rensburg',
     author_email='m.jansenvr@imperial.ac.uk',
     url='https://github.com/theflyingturtle/bigsdb_attributor',
-    packages=find_packages(include=['bigsdb_attributor']),
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
             'bigsdb_attributor=bigsdb_attributor.cli:main',
