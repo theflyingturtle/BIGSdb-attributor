@@ -78,7 +78,7 @@ def read_test_and_ref_files(testdata, refdata):
     return test_data, ref
 
 
-def validate_and_fixup(test, ref):
+def validate_and_fixup(test, ref, drop_missing=False):
     # Merge dataframes and indicate source of isolate (data vs reference).
     # Flatten MultiIndex.
     combined_df = pd.concat(
@@ -89,7 +89,10 @@ def validate_and_fixup(test, ref):
     # Rename former MultiIndex column
     combined_df.rename(columns={'level_0': 'dataset'}, inplace=True)
 
-    # TO DO - revise essential headers - no month header; only need time headers to do time analyses - simplest would be to do overall attribution and then have a breakdown over time option that would require at least year and/or DOI
+    # TO DO - revise essential headers - no month header; only need time headers to do time analyses
+    # - simplest would be to do overall attribution and then have a breakdown over time option that
+    # would require at least year and/or DOI
+
     # Quit if any essential headers are missing
     prefix = ['year', 'received_date', 'age_yr', 'sex']
     MLST = [
@@ -150,6 +153,15 @@ def validate_and_fixup(test, ref):
         'uncA': '-9',
     })
 
+    if drop_missing:
+        logging.warn('BAD JUJU')
+        isolates_with_missing_allele = (
+            combined_df[[
+                'aspA', 'glnA', 'gltA', 'glyA', 'pgm', 'tkt', 'uncA',
+            ]].astype(str) == '-9'
+        ).any(axis=1)
+        combined_df = combined_df[~isolates_with_missing_allele]
+
     # Detect any ids present in both datasets (shouldn't have test isolates in ref dataset)
     n_duplicate_ids = len(combined_df[combined_df.duplicated('id')].index)
     if n_duplicate_ids == 0:
@@ -180,7 +192,9 @@ def remap_col_by_sourcelookup(df, group, col, sourcelookup):
     )
 
     logging.debug('Remapped column %s to integers', col)
-    # TO DO - script fails if source is not filled in (specifically for humans) - need to completely fill human source column (perhaps warn if blank/not human); need to fail if ref set includes blanks for source
+    # TO DO - script fails if source is not filled in (specifically for humans) - need to completely
+    # fill human source column (perhaps warn if blank/not human); need to fail if ref set includes
+    # blanks for source
     integers = bidict.bidict()
     populations = df.groupby(group)[col].unique().to_dict()
     for v, k in enumerate(populations['ref'], start=1):
@@ -321,14 +335,16 @@ def postprocess(test_data, ancestries, outdir):
     anc_data['year'] = anc_data['received_date'].dt.year
 
     # Get time period (in years)
-    start = anc_data['received_date'].min().strftime('%B %Y')
-    finish = anc_data['received_date'].max().strftime('%B %Y')
+    # start = anc_data['received_date'].min().strftime('%B %Y')
+    # finish = anc_data['received_date'].max().strftime('%B %Y')
 
     # Log table of probabilities
     no_test_isolates = len(anc_data)
 
     # Generate corresponding bar graph coloured according to source
-    # TO DO append "Probabilistic assignments carried out using noadmixture model in STRUCTURE/iSource" to figure title as applicable
+
+    # TO DO append "Probabilistic assignments carried out using noadmixture model in
+    # STRUCTURE/iSource" to figure title as applicable
     filename = 'OverallAttribution.svg'
     title_total = 'Estimated proportion of {} human disease isolates attributed to animal and '\
                   'environmental sources.'
@@ -356,9 +372,9 @@ def postprocess(test_data, ancestries, outdir):
     filename = 'IndividualAncestries.svg'
     source_order = total_means.index.values.tolist()
     title_inds = 'Source probabilities for {} human disease isolates. Isolates are represented as '\
-                    'vertical bars coloured according to estimated probability for each source. '\
-                    'Isolates are ordered horizontally by most likely source. Sources are separated '\
-                    'by black vertical lines.'
+        'vertical bars coloured according to estimated probability for each source. '\
+        'Isolates are ordered horizontally by most likely source. Sources are separated '\
+        'by black vertical lines.'
     title_inds = title_inds.format(no_test_isolates)
     title_inds = '\n'.join(textwrap.wrap(title_inds))
 
@@ -369,12 +385,13 @@ def postprocess(test_data, ancestries, outdir):
         title=title_inds,
         xlabel='Isolates',
         ylabel='Source probability',
-        )
+    )
 
     logging.debug(
         'Graph of assignment probabilities for individual isolates saved as %s',
         filename,
     )
+
 
 def plot(
     df,

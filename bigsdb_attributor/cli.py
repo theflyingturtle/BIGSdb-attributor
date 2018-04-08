@@ -123,7 +123,9 @@ def main():
 
     # Read and validate data
     testdata, refdata = read_test_and_ref_files(args.datafile, args.reffile)
-    combined = validate_and_fixup(testdata, refdata)
+    # only STRUCTURE can handle missing data
+    drop_missing = (args.mode != 'structure')
+    combined = validate_and_fixup(testdata, refdata, drop_missing=drop_missing)
 
     # Go go gadget population genetics
     inferred_ancestry = run(args, combined)
