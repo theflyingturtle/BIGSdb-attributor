@@ -90,7 +90,9 @@ def run(data, label, max_populations, executable=None, output_directory=None):
                     '-m', path('input', 'mainparams'),
                     '-e', path('input', 'extraparams'),
                 ],
-                stdout=subprocess.PIPE, stderr=sys.stderr,
+                stdout=subprocess.PIPE,
+                stderr=sys.stderr,
+                cwd=path('output', ''),
             )
 
             # This is effectively `structure.communicate()` but lets us inspect the lines, which is great for tqdm
