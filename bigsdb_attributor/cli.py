@@ -34,6 +34,7 @@ def parse_args():
         '--output-directory',
         help='output directory to create',
         default='output',
+        type=os.path.abspath,
     )
     parser.add_argument(
         '--overwrite',

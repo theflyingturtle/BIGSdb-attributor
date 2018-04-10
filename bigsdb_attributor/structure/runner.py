@@ -45,6 +45,7 @@ def run(data, label, max_populations, executable=None, output_directory=None):
         # TODO(propagate this through multiprocessing)
 
     # Set up output directory.
+    data = os.path.abspath(data)
     if not os.path.isdir(output_directory):
         os.mkdir(output_directory)
 
