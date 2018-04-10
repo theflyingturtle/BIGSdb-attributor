@@ -43,7 +43,9 @@ def parse_args():
     parser.add_argument(
         '--logfile',
         help='name of log file (default: %(default)s)',
-        default=f'bigsdb_attributor_{datetime.date.today().isoformat()}.log',
+        default='bigsdb_attributor_{when}.log'.format(
+            when=datetime.date.today().isoformat(),
+        ),
     )
     parser.add_argument(
         '--sourcelookup',
