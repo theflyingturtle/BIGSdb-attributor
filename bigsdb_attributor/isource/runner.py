@@ -27,6 +27,8 @@ def run(data, label, max_populations, executable=None, output_directory=None):
     if not os.path.isdir(output_directory):
         os.mkdir(output_directory)
 
+    data = os.path.abspath(data)
+
     def path(f=''):
         return os.path.join(output_directory, f)
 
