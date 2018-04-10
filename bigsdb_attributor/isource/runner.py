@@ -29,15 +29,20 @@ def run(data, label, max_populations, executable=None, output_directory=None):
 
     data = os.path.abspath(data)
 
-    def path(f=''):
-        return os.path.join(output_directory, f)
+    def path(kind, f):
+        if kind == 'input':
+            return os.path.join(os.path.dirname(data), f)
+        elif kind == 'output':
+            return os.path.join(output_directory, f)
+        else:
+            raise ValueError('Wrong kind')
 
     # Parse iSource input dataframe to extract various bits of data
     if not os.path.isfile(data):
         raise ISourceRuntimeError('Could not find file {}'.format(data))
 
     # Run iSource
-    with open(path('isource_runtime.log'), mode='wb', buffering=0) as runtime, \
+    with open(path('output', 'isource_runtime.log'), mode='wb', buffering=0) as runtime, \
             tqdm.tqdm(total=N) as pbar:
         isource_p = subprocess.Popen(
             [
@@ -50,7 +55,7 @@ def run(data, label, max_populations, executable=None, output_directory=None):
             ],
             stdout=subprocess.PIPE,
             stderr=sys.stderr,
-            cwd=path(),
+            cwd=path('output', ''),
         )
         # This is effectively `.communicate()` but lets us inspect the lines, which is great for tqdm
         rc = isource_p.poll()
@@ -68,4 +73,4 @@ def run(data, label, max_populations, executable=None, output_directory=None):
 
         isource_p.communicate()
 
-    return path('g_' + ISOURCE_RESULTS)
+    return path('output', 'g_' + ISOURCE_RESULTS)

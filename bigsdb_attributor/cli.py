@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import argparse
+import coloredlogs
+import datetime
 import logging
 import os
 import shutil
 import sys
-
-import coloredlogs
 
 
 from .bigsdb_attributor import read_test_and_ref_files,\
@@ -43,7 +43,7 @@ def parse_args():
     parser.add_argument(
         '--logfile',
         help='name of log file (default: %(default)s)',
-        default='Prep.log',
+        default=f'bigsdb_attributor_{datetime.date.today().isoformat()}.log',
     )
     parser.add_argument(
         '--sourcelookup',
@@ -92,8 +92,14 @@ def setup_output_directory(output, overwrite):
 
 def run(args, combined):
     logging.info('Stop! Population genetics time.')
+
+    indir = os.path.join(args.output_directory, 'inputs')
+    os.mkdir(indir)
+    outdir = os.path.join(args.output_directory, 'outputs')
+    os.mkdir(outdir)
+
     data, mapping = runners[args.mode].prepare(combined, args.sourcelookup)
-    data_file = os.path.join(args.output_directory, 'runner-input.tsv')
+    data_file = os.path.join(indir, 'runner-input.tsv')
     data.to_csv(data_file, sep='\t')
 
     logging.debug('Running...')
@@ -102,7 +108,7 @@ def run(args, combined):
         label=1,
         # -1 because we don't want to count reference (i.e. 0) as a pop
         max_populations=len(mapping) - 1,
-        output_directory=args.output_directory,
+        output_directory=outdir,
         executable=args.attributor_path,
     )
 
@@ -131,8 +137,10 @@ def main():
     inferred_ancestry = run(args, combined)
 
     # Write inferred ancestries to CSV
+    analyses_dir = os.path.join(args.output_directory, 'analyses')
+    os.mkdir(analyses_dir)
     inferred_ancestry_path = os.path.join(
-        args.output_directory, 'inferred-ancestry.csv',
+        analyses_dir, 'inferred-ancestry.csv',
     )
     inferred_ancestry.to_csv(inferred_ancestry_path)
 
@@ -144,7 +152,7 @@ def main():
         inferred_ancestry_path,
     )
 
-    postprocess(testdata, inferred_ancestry, args.output_directory)
+    postprocess(testdata, inferred_ancestry, analyses_dir)
 
 
 if __name__ == '__main__':

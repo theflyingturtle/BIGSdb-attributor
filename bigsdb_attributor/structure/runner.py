@@ -48,8 +48,13 @@ def run(data, label, max_populations, executable=None, output_directory=None):
     if not os.path.isdir(output_directory):
         os.mkdir(output_directory)
 
-    def path(f):
-        return os.path.join(output_directory, f)
+    def path(kind, f):
+        if kind == 'input':
+            return os.path.join(os.path.dirname(data), f)
+        elif kind == 'output':
+            return os.path.join(output_directory, f)
+        else:
+            raise ValueError('Wrong kind')
 
     # Parse STRUCTURE input dataframe to extract various bits of data.
     if not os.path.isfile(data):
@@ -58,13 +63,14 @@ def run(data, label, max_populations, executable=None, output_directory=None):
     n, n_l = len(df), sum(c.startswith('Locus_') for c in df.columns)
 
     # Set up mainparams and extraparams.
-    with open(path('mainparams'), 'w') as mainparams, \
-            open(path('extraparams'), 'w') as extraparams:
+    with open(path('input', 'mainparams'), 'w') as mainparams, \
+            open(path('input', 'extraparams'), 'w') as extraparams:
         # TODO(K): I removed the -1 from maxpops. Why was it there?
         mainparams.write(MAINPARAMS.format(
             maxpops=max_populations,
             inputfile=data,
             outputfile=path(
+                'output',
                 'structure_results',
             ),
             n=n,
@@ -76,13 +82,13 @@ def run(data, label, max_populations, executable=None, output_directory=None):
         extraparams.flush()
 
         # Run STRUCTURE.
-        with open(path('structure_runtime.log'), mode='wb', buffering=0) as runtime, \
+        with open(path('output', 'structure_runtime.log'), mode='wb', buffering=0) as runtime, \
                 tqdm.tqdm(total=BURNIN + NUMREPS) as pbar:
             structure = subprocess.Popen(
                 [
                     os.path.expanduser(structure),
-                    '-m', path('mainparams'),
-                    '-e', path('extraparams'),
+                    '-m', path('input', 'mainparams'),
+                    '-e', path('input', 'extraparams'),
                 ],
                 stdout=subprocess.PIPE, stderr=sys.stderr,
             )
@@ -110,4 +116,4 @@ def run(data, label, max_populations, executable=None, output_directory=None):
 
             structure.communicate()
 
-        return path('structure_results') + '_f'
+        return path('output', 'structure_results') + '_f'
