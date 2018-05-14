@@ -264,7 +264,7 @@ doc = addFlexTable(doc, vanilla.table(overall_years_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 # Annual breakdown plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
-doc = addParagraph(doc, sprintf('Figure 3. Proportion of (A) %s C. jejuni and (B) %s C. coli human disease isolates attributed to animal and environmental sources over time.', no_cj, no_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 3. Proportion of (A) %s C. jejuni and (B) %s C. coli human disease isolates attributed to animal and environmental sources over time. Bars are ordered from major (bottom) to minor (top) sources.', no_cj, no_cc), stylename='Normal')
 
 ## Appendices ##
 doc = addTitle(doc, 'Appendices', level=2)
