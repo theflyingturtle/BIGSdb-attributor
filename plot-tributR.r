@@ -240,7 +240,7 @@ doc = addParagraph(doc, 'Add any preamble to results here.', stylename = 'Normal
 
 # Numbers of isolates before and after data cleaning
 doc = addTitle(doc, 'Data cleaning', level=3)
-doc = addParagraph(doc, sprintf('Inferred ancestries for %s C. jejuni and %s C. coli isolates were loaded for summarising. All isolates are included in the "Overall summaries" section. Later sections required isolation dates, so isolates with missing data were excluded. A total of %s C. jejuni and %s C. coli were included in the date-based summaries.', no_ancs_cj, no_ancs_cc, no_cj, no_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Inferred ancestries for %s C. jejuni and %s C. coli isolates were loaded for summarising. All isolates are included in the "Overall summaries" section. Later sections required isolation/laboratory receipt dates, so isolates with missing data were excluded. A total of %s C. jejuni and %s C. coli were included in the date-based summaries.', no_ancs_cj, no_ancs_cc, no_cj, no_cc), stylename='Normal')
 
 # Overall summaries section
 doc = addTitle(doc, 'Overall summaries', level=3)
@@ -258,6 +258,10 @@ doc <- addPageBreak(doc)
 
 # Annual breakdown section
 doc = addTitle(doc, 'Annual breakdown', level=3)
+# Breakdown of number of isolates per year
+doc = addParagraph(doc, 'Table 2. Number of human disease isolates per year.', stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_years_table))
+doc = addParagraph(doc, '\r\n', stylename=)
 # Annual breakdown plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
 doc = addParagraph(doc, sprintf('Figure 3. Proportion of (A) %s C. jejuni and (B) %s C. coli human disease isolates attributed to animal and environmental sources over time.', no_cj, no_cc), stylename='Normal')
