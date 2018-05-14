@@ -210,8 +210,27 @@ overall_years_table = full_join(cj_years_count, cc_years_count, by = "Year")
 colnames(overall_years_table) <- c("Year", "C. jejuni", "C. coli")
 
 # FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
+## Quarterly breakdown ##
+# C. jejuni
+# Add quarters column to date-complete dataset
+cj_quarters = cj
+cj_quarters$Quarter = as.yearqtr(cj_quarters$date, format = "%Y-%m-%d")
+# Drop unnecessary columns
+cj_quarters <- cj_quarters %>%
+    select(-matches('id'))
+cj_quarters <- cj_quarters %>%
+    select(-matches('species'))
+cj_quarters <- cj_quarters %>%
+    select(-matches('date'))
+# Get mean by quarter over time
+cj_quarters_mean = aggregate(.~Quarter, cj_quarters, mean)
+# Convert to long form
+cj_quarters_mean_long = melt(cj_quarters_mean, id="Quarter", variable.name = "Source", value.name = "Proportion")
 
+# Generate area plot
+# Should convert quarters to numeric, but they're categorical...
 
+# Generate bar graph
 
 ### Report generation ###
 ## Create document and title ##
