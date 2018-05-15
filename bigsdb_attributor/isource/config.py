@@ -5,7 +5,7 @@ THINNING = 1
 ALPHA = 1
 ISOURCE_RESULTS = 'isource_results'
 
-speedy = True
+speedy = False
 if speedy:
     import logging
     N = 4
