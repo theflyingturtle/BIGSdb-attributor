@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-SPEEDY = True
+SPEEDY = False
 
 ADMBURNIN = 500
 BURNIN = 1000
