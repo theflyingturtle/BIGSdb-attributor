@@ -229,8 +229,16 @@ cj_quarters_mean_long = melt(cj_quarters_mean, id="Quarter", variable.name = "So
 
 # Generate area plot
 # Should convert quarters to numeric, but they're categorical...
+# Attempt 1 - x-axis issue as for bar graphs
+# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours
 
 # Generate bar graph
+# Basic plot with incorrect x-axis
+# cj_quarters_bar_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
+# As above but with rotated x-axis labels
+# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# Attempt at sorting out axis labels into proper quarter format (requires zoo)
+# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + scale_x_yearqtr(format="%Y Q%q")
 
 ### Report generation ###
 ## Create document and title ##
@@ -268,7 +276,7 @@ doc = addParagraph(doc, 'Table 1. Estimated proportion of human disease isolates
 doc = addFlexTable(doc, vanilla.table(overall_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 # Overall summary plot
-doc = addPlot(doc , fun=print, x=overall_plot)
+doc = addPlot(doc , fun=print, x=overall_plot, width=7, height=4)
 doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to animal and environmental sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
 # Overall ancestries plot
 doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot)
