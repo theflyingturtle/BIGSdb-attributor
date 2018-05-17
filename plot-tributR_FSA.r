@@ -22,7 +22,7 @@ ancs_cj[ancs_cj==""] <- NA
 ancs_cj$date <- as.Date(ancs_cj$date)
 cj = ancs_cj[!is.na(ancs_cj$date),]
 # Repeat for C. coli
-ancs_cc = read.csv("/Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/FSA_Cj_inferred-ancestry.csv", header=TRUE, check.names=TRUE)
+ancs_cc = read.csv("/Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/FSA_Cc_inferred-ancestry.csv", header=TRUE, check.names=TRUE)
 ancs_cc[ancs_cc==""] <- NA
 ancs_cc$date <- as.Date(ancs_cc$date)
 cc = ancs_cc[!is.na(ancs_cc$date),]
@@ -43,10 +43,12 @@ setwd(file.path(current_dir, output_dir))
 no_ancs_cj = nrow(ancs_cj)
 no_cj = nrow(cj)
 cj_missing_dates = no_ancs_cj - no_cj
+cj_missing_dates_prop = round((cj_missing_dates/no_ancs_cj*100), digits=2)
 # C. coli
 no_ancs_cc = nrow(ancs_cc)
 no_cc = nrow(cc)
 cc_missing_dates = no_ancs_cc - no_cc
+cc_missing_dates_prop = round((cc_missing_dates/no_ancs_cc*100), digits=2)
 ## Max and min dates
 # C. jejuni
 max_date_cj = format(max(as.Date(cj$date, format="%d/%m/%Y")), "%B %Y")
@@ -78,7 +80,7 @@ cj_anc_sites_long = melt(cj_anc_sites, id="site", variable.name="Source", value.
 cj_sbs_summary = setNames(data.frame(t(cj_anc_sites[,-1])), cj_anc_sites[,1])
 
 # Generate grouped bar graph showing site-by-site proportions
-cj_sbs_overall_plot = ggplot(cj_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sites", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
+cj_sbs_overall_plot = ggplot(cj_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sites", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
     theme(legend.position="bottom", legend.direction = "horizontal")
 
 # Overall summary
@@ -92,7 +94,7 @@ cj_overall_summary = melt(tapply(cj_ancs_long$value, cj_ancs_long$variable, mean
 cj_overall_summary = cj_overall_summary[order(-cj_overall_summary$Proportion),]
 cj_overall_summary$Source = factor(cj_overall_summary$Source, levels=unique(as.character(cj_overall_summary$Source)))
 # Generate bar graph showing overall proportions
-cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
 
 # Repeat for C. coli
 # Site-by-site summaries
@@ -107,7 +109,7 @@ cc_anc_sites_long = melt(cc_anc_sites, id="site", variable.name="Source", value.
 # Site-by-site summary
 cc_sbs_summary = setNames(data.frame(t(cc_anc_sites[,-1])), cc_anc_sites[,1])
 # Site-by-site plot
-cc_sbs_overall_plot = ggplot(cc_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sites", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
+cc_sbs_overall_plot = ggplot(cc_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sites", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
     theme(legend.position="bottom", legend.direction = "horizontal")
 
 # Overall summary
@@ -117,7 +119,7 @@ cc_ancs_long = melt(cc_overall)
 cc_overall_summary = melt(tapply(cc_ancs_long$value, cc_ancs_long$variable, mean), varnames="Source", value.name="Proportion")
 cc_overall_summary = cc_overall_summary[order(-cc_overall_summary$Proportion),]
 cc_overall_summary$Source = factor(cc_overall_summary$Source, levels=unique(as.character(cc_overall_summary$Source)))
-cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
 
 # Plot C. jejuni and C. coli graphs on same axis
 # Overall plots
@@ -142,6 +144,8 @@ sbs_table = merge(cj_sbs_summary, cc_sbs_summary, by.x="row.names", by.y="row.na
 sbs_table[,-1] = signif(sbs_table[,-1], 3)
 # Correct header
 colnames(sbs_table)[1] <- "Sources"
+
+#### START HERE ######
 
 # Generate individual ancestries plots
 # C. jejuni
@@ -319,27 +323,35 @@ ggsave("Figure3.svg", plot=overall_ind_ancs_plot, device="svg", width=210, heigh
 ### Report generation ###
 ## Create document and title ##
 doc = docx(title="FSA_Report_Skeleton")
-doc = addTitle(doc , 'Source attribution of campylobacteriosis isolates from Oxfordshire and Newcastle/North Tyneside', level=1)
+doc = addTitle(doc , 'FSA-101013: Source attribution of campylobacteriosis isolates from Oxfordshire and Newcastle/North Tyneside', level=1)
 
-## Describe datasets ##
-doc = addTitle(doc, 'Datasets', level=2)
-doc = addTitle(doc, 'Human disease isolates', level=3)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
-doc = addTitle(doc, 'Reference isolates', level=3)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
-doc <- addPageBreak(doc)
+## Introduction ##
+doc = addTitle(doc, 'Introduction', level=2)
+doc = addParagraph(doc, 'Add your text here.', stylename = 'Normal')
 
-## Describe methods ##
+## Methods ##
 doc = addTitle(doc , 'Methods', level=2)
-doc = addParagraph(doc, 'Add your description of the methods here.', stylename = 'Normal')
+# Describe datasets #
+doc = addTitle(doc, 'Datasets', level=3)
+doc = addTitle(doc, 'Reference isolates', level=4)
+doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
+doc = addTitle(doc, 'Human disease isolates', level=4)
+doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
+# Describe attribution
+doc = addTitle(doc, 'Source attribution', level=3)
+doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
 # Previous descriptions used in FSA reports:
 # STRUCTURE. Human disease isolates were assigned to putative host sources using the no-admixture model in STRUCTURE, based on analysis of MLST data.  STRUCTURE was run separately for C. coli and C. jejuni. The program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.
 # iSOURCE. Human disease isolates were assigned to putative host sources using the Asymmetric Island model implemented in iSource, based on analysis of MLST data.  The algorithm was run separately for C. coli and C. jejuni. The program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.
 doc <- addPageBreak(doc)
 
-## Present results ##
+## Results ##
 doc = addTitle(doc, 'Results', level=2)
-doc = addParagraph(doc, 'Add any preamble to results here.', stylename = 'Normal')
+
+# Data cleaning
+doc = addTitle(doc, 'Post-attribution data cleaning', level=3)
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, %s (%s %%) C. jejuni and %s (%s %%) C. coli isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cj_missing_dates_prop, cc_missing_dates, cc_missing_dates_prop), stylename='Normal')
+
 
 # Numbers of isolates before and after data cleaning
 doc = addTitle(doc, 'Data cleaning', level=3)
