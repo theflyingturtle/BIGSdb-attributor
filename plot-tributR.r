@@ -265,6 +265,7 @@ doc = addTitle(doc , 'Source attribution of campylobacteriosis isolates', level=
 
 ## Introduction ##
 doc = addTitle(doc, 'Introduction', level=2)
+doc = addParagraph(doc, 'Add your text here.', stylename = 'Normal')
 
 ## Methods ##
 doc = addTitle(doc , 'Methods', level=2)
@@ -292,7 +293,8 @@ doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates
 
 # Overall summary
 doc = addTitle(doc, 'Overall summary', level=3)
-doc = addParagraph(doc, 'Add text summary here.\r\nNote that tabulated data for Figure 1 are provided in the Appendices.\r\n', stylename = 'Normal')
+doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Note that tabulated data for Figure 1 are provided in the Appendices.', stylename = 'Normal')
 # Overall summary plot
 doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
 doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
@@ -304,10 +306,11 @@ doc <- addPageBreak(doc)
 
 # Annual breakdown section
 doc = addTitle(doc, 'Annual breakdown', level=3)
-doc = addParagraph(doc, 'Add text summary here.\r\nNote that tabulated data for all figures are provided in the Appendices.\r\n', stylename = 'Normal')
+doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Note that tabulated data for all figures are provided in the Appendices.', stylename = 'Normal')
 # Annual isolate count plot
-doc = addPlot(doc , fun=print, x=overall_year_counts_plot)
-doc = addParagraph(doc, sprintf('Figure 3. Number of C. jejuni and C. coli isolates collected between %s and %s.', ), stylename='Normal')
+doc = addPlot(doc , fun=print, x=overall_year_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
+doc = addParagraph(doc, 'Figure 3. Number of C. jejuni and C. coli isolates per year.', stylename='Normal')
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
