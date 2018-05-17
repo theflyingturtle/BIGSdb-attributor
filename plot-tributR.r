@@ -4,6 +4,7 @@ library(reshape2)
 library(ggplot2)
 library(cowplot)
 library(RColorBrewer)
+library(zoo)
 
 #TODO: In py script head id column in ancs output; add date column (filling as per usual); must manually add species?
 
@@ -15,14 +16,17 @@ set_fill_colours = scale_fill_manual(values = c("Cattle" = "#6FBAFF", "Chicken" 
 
 ### File processing ###
 # Open C. jejuni file, convert missing data to NA and drop rows without dates
+# Note that PubMLST dates are in ISO 8601 format (for xx/xx/xxxx use format=format='%d-%m-%Y')
+# /Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/OXC_Long_Cj_inferred-ancestry.csv
+# /Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/OXC_Long_Cc_inferred-ancestry.csv
 ancs_cj = read.csv("/Users/MelissaJvR/Documents/FSAScripting/Rdemodata.csv", header=TRUE, check.names=TRUE)
 ancs_cj[ancs_cj==""] <- NA
-ancs_cj$date <- as.Date(ancs_cj$date, format='%d/%m/%Y')
+ancs_cj$date <- as.Date(ancs_cj$date)
 cj = ancs_cj[!is.na(ancs_cj$date),]
 # Repeat for C. coli
 ancs_cc = read.csv("/Users/MelissaJvR/Documents/FSAScripting/RdemodataCcmock.csv", header=TRUE, check.names=TRUE)
 ancs_cc[ancs_cc==""] <- NA
-ancs_cc$date <- as.Date(ancs_cc$date, format='%d/%m/%Y')
+ancs_cc$date <- as.Date(ancs_cc$date)
 cc = ancs_cc[!is.na(ancs_cc$date),]
 
 ### Directory setup ###
@@ -40,9 +44,13 @@ setwd(file.path(current_dir, output_dir))
 # C. jejuni
 no_ancs_cj = nrow(ancs_cj)
 no_cj = nrow(cj)
+cj_missing_dates = no_ancs_cj - no_cj
+cj_missing_dates_prop = round((cj_missing_dates/no_ancs_cj*100), digits=2)
 # C. coli
 no_ancs_cc = nrow(ancs_cc)
 no_cc = nrow(cc)
+cc_missing_dates = no_ancs_cc - no_cc
+cc_missing_dates_prop = round((cc_missing_dates/no_ancs_cc*100), digits=2)
 ## Max and min dates
 # C. jejuni
 max_date_cj = format(max(as.Date(cj$date, format="%d/%m/%Y")), "%B %Y")
@@ -68,7 +76,7 @@ cj_overall_summary = melt(tapply(cj_ancs_long$value, cj_ancs_long$variable, mean
 cj_overall_summary = cj_overall_summary[order(-cj_overall_summary$Proportion),]
 cj_overall_summary$Source = factor(cj_overall_summary$Source, levels=unique(as.character(cj_overall_summary$Source)))
 # Generate bar plot showing overall proportions
-cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab("Proportion")
+cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
 
 # Repeat for C. coli
 cc_sources <- ancs_cc %>%
@@ -81,7 +89,7 @@ cc_ancs_long = melt(cc_sources)
 cc_overall_summary = melt(tapply(cc_ancs_long$value, cc_ancs_long$variable, mean), varnames="Source", value.name="Proportion")
 cc_overall_summary = cc_overall_summary[order(-cc_overall_summary$Proportion),]
 cc_overall_summary$Source = factor(cc_overall_summary$Source, levels=unique(as.character(cc_overall_summary$Source)))
-cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylab("Proportion")
+cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
 
 # Plot C. jejuni and C. coli graphs on same axis
 overall_plot = plot_grid(cj_overall_plot, cc_overall_plot, labels=c("A", "B"), align="h")
@@ -157,7 +165,7 @@ cj_years_mean_long = cj_years_mean_long[cj_years_order,]
 cj_years_mean_long$Source = factor(cj_years_mean_long$Source, levels=unique(as.character(cj_years_mean_long$Source)))
 
 # Generate area plot and manipulate x-axis to display years correctly
-cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_mean_long$Year)), labels=c(as.character(unique(cj_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours
+cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_mean_long$Year)), labels=c(as.character(unique(cj_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # Alternative code for bar graph
 #cj_years_bar_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
 
@@ -187,7 +195,7 @@ cc_years_mean_long = cc_years_mean_long[cc_years_order,]
 cc_years_mean_long$Source = factor(cc_years_mean_long$Source, levels=unique(as.character(cc_years_mean_long$Source)))
 
 # Generate plot
-cc_years_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_mean_long$Year)), labels=c(as.character(unique(cc_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours
+cc_years_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_mean_long$Year)), labels=c(as.character(unique(cc_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # Alternative code for bar graph
 #cc_years_bar_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
 
@@ -236,7 +244,7 @@ cj_quarters_mean_long = melt(cj_quarters_mean, id="Quarter", variable.name = "So
 # Basic plot with incorrect x-axis
 # cj_quarters_bar_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
 # As above but with rotated x-axis labels
-# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 # Attempt at sorting out axis labels into proper quarter format (requires zoo)
 # ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + scale_x_yearqtr(format="%Y Q%q")
 
@@ -267,7 +275,7 @@ doc = addParagraph(doc, 'Add any preamble to results here.', stylename = 'Normal
 
 # Numbers of isolates before and after data cleaning
 doc = addTitle(doc, 'Data cleaning', level=3)
-doc = addParagraph(doc, sprintf('Inferred ancestries for %s C. jejuni and %s C. coli isolates were loaded for summarising. All isolates are included in the "Overall summaries" section. Later sections required isolation/laboratory receipt dates, so isolates with missing data were excluded. A total of %s C. jejuni and %s C. coli were included in the date-based summaries.', no_ancs_cj, no_ancs_cc, no_cj, no_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Inferred ancestries for %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources. A total of %s (%s %%) C. jejuni and %s (%s %%) C. coli isolates with missing data were excluded from date-based analyses.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cj_missing_dates_prop, cc_missing_dates, cc_missing_dates_prop), stylename='Normal')
 
 # Overall summaries section
 doc = addTitle(doc, 'Overall summaries', level=3)
