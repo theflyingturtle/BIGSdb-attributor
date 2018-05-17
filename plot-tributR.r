@@ -171,8 +171,8 @@ cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source
 
 # Count C. jejuni isolates per year
 cj_years_count = aggregate(.~Year, cj_years, FUN= length)
-colnames(cj_years_count)[2] <- "No. isolates"
-retain = c("Year","No. isolates")
+colnames(cj_years_count)[2] <- "Count"
+retain = c("Year","Count")
 cj_years_count = cj_years_count[,retain]
 
 # Repeat for C. coli
@@ -201,8 +201,8 @@ cc_years_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source
 
 # Count C. coli isolates per year
 cc_years_count = aggregate(.~Year, cc_years, FUN= length)
-colnames(cc_years_count)[2] <- "No. isolates"
-retain = c("Year","No. isolates")
+colnames(cc_years_count)[2] <- "Count"
+retain = c("Year","Count")
 cc_years_count = cc_years_count[,retain]
 
 # Plot C. jejuni and C. coli annual breakdown in single figure
@@ -213,9 +213,18 @@ ggsave("Figure3.svg", plot=yearly_plot, device="svg", width=210, height=148, uni
 #yearly_bar_plot = plot_grid(cj_years_bar_plot, cc_years_bar_plot, labels=c("A", "B"), nrow = 2, align = "v")
 #ggsave("Figure3BarGraph.svg", plot=yearly_bar_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
-# Generate combined summary table of no. isolates per year
+# Generate combined summary table of number of isolates per year
 overall_years_table = full_join(cj_years_count, cc_years_count, by = "Year")
 colnames(overall_years_table) <- c("Year", "C. jejuni", "C. coli")
+
+# Plot number of isolates per year
+# Prepare data
+overall_years = overall_years_table
+# Convert years to integers for graphing
+overall_years$Year = as.integer(overall_years$Year)
+# Convert data to long form
+overall_years_long = melt(overall_years, id = "Year", variable.name = "Species", value.name = "Count")
+ggplot(data=overall_years_long, aes(x = Year, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Year", y="Number of isolates") + theme_grey()
 
 # FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
 ## Quarterly breakdown ##
@@ -251,74 +260,87 @@ cj_quarters_mean_long = melt(cj_quarters_mean, id="Quarter", variable.name = "So
 ### Report generation ###
 ## Create document and title ##
 doc = docx(title="FSA_Report_Skeleton")
-doc = addTitle(doc , 'Source attribution of campylobacteriosis isolates from Oxfordshire', level=1)
+doc = addTitle(doc , 'Source attribution of campylobacteriosis isolates', level=1)
 
-## Describe datasets ##
-doc = addTitle(doc, 'Datasets', level=2)
-doc = addTitle(doc, 'Human disease isolates', level=3)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
-doc = addTitle(doc, 'Reference isolates', level=3)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
-doc <- addPageBreak(doc)
+## Introduction ##
+doc = addTitle(doc, 'Introduction', level=2)
 
-## Describe methods ##
+## Methods ##
 doc = addTitle(doc , 'Methods', level=2)
-doc = addParagraph(doc, 'Add your description of the methods here.', stylename = 'Normal')
+# Describe datasets #
+doc = addTitle(doc, 'Datasets', level=3)
+doc = addTitle(doc, 'Reference isolates', level=4)
+doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
+doc = addTitle(doc, 'Human disease isolates', level=4)
+doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
+# Describe attribution
+doc = addTitle(doc, 'Source attribution', level=3)
+doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
 # Previous descriptions used in FSA reports:
 # STRUCTURE. Human disease isolates were assigned to putative host sources using the no-admixture model in STRUCTURE, based on analysis of MLST data.  STRUCTURE was run separately for C. coli and C. jejuni. The program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.
 # iSOURCE. Human disease isolates were assigned to putative host sources using the Asymmetric Island model implemented in iSource, based on analysis of MLST data.  The algorithm was run separately for C. coli and C. jejuni. The program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.
 doc <- addPageBreak(doc)
 
-## Present results ##
+## Results ##
 doc = addTitle(doc, 'Results', level=2)
-doc = addParagraph(doc, 'Add any preamble to results here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Add any introductory text here.', stylename = 'Normal')
 
-# Numbers of isolates before and after data cleaning
+# Data cleaning
 doc = addTitle(doc, 'Data cleaning', level=3)
-doc = addParagraph(doc, sprintf('Inferred ancestries for %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources. A total of %s (%s %%) C. jejuni and %s (%s %%) C. coli isolates with missing data were excluded from date-based analyses.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cj_missing_dates_prop, cc_missing_dates, cc_missing_dates_prop), stylename='Normal')
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, %s (%s %%) C. jejuni and %s (%s %%) C. coli isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cj_missing_dates_prop, cc_missing_dates, cc_missing_dates_prop), stylename='Normal')
 
-# Overall summaries section
-doc = addTitle(doc, 'Overall summaries', level=3)
-# Overall summary table
-doc = addParagraph(doc, 'Table 1. Estimated proportion of human disease isolates attributed to animal and environmental sources.', stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(overall_table))
-doc = addParagraph(doc, '\r\n', stylename=)
+# Overall summary
+doc = addTitle(doc, 'Overall summary', level=3)
+doc = addParagraph(doc, 'Add text summary here.\r\nNote that tabulated data for Figure 1 are provided in the Appendices.\r\n', stylename = 'Normal')
 # Overall summary plot
-doc = addPlot(doc , fun=print, x=overall_plot, width=7, height=4)
-doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to animal and environmental sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
+doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
 # Overall ancestries plot
-doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot)
-doc = addParagraph(doc, sprintf('Figure 2. Source probabilities for individual human disease isolates. Probabilistic assignment of (A) %s C. jejuni and (B) %s C. coli isolates. Isolates are represented as vertical bars coloured according to the estimated probability for each source. Isolates are ordered horizontally by most likely source, and by decreasing probability within each source.', no_ancs_cj, no_ancs_cc), stylename='Normal')
+doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot, width=6, height=5)
+doc = addParagraph(doc, sprintf('Figure 2. Source probabilities for individual human disease isolates. Probabilistic assignment of (A) %s C. jejuni and (B) %s C. coli isolates. Isolates are represented as vertical bars coloured according to the estimated probability for each source as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', no_ancs_cj, no_ancs_cc), stylename='Normal')
+
 doc <- addPageBreak(doc)
 
 # Annual breakdown section
 doc = addTitle(doc, 'Annual breakdown', level=3)
-# Breakdown of number of isolates per year
-doc = addParagraph(doc, 'Table 2. Number of human disease isolates per year.', stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(overall_years_table))
-doc = addParagraph(doc, '\r\n', stylename=)
-# Annual breakdown plot
+doc = addParagraph(doc, 'Add text summary here.\r\nNote that tabulated data for all figures are provided in the Appendices.\r\n', stylename = 'Normal')
+# Annual isolate count plot
+
+# Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
-doc = addParagraph(doc, sprintf('Figure 3. Proportion of (A) %s C. jejuni and (B) %s C. coli human disease isolates attributed to animal and environmental sources over time. Bars are ordered from major (bottom) to minor (top) sources.', no_cj, no_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 3. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
+
+doc <- addPageBreak(doc)
 
 ## Appendices ##
 doc = addTitle(doc, 'Appendices', level=2)
+# Overall summary tables
+doc = addTitle(doc, 'Overall summary', level=3)
+doc = addParagraph(doc, sprintf('Table A1. Estimated proportion of %s C. jejuni and %s C. coli human disease isolates attributed to putative sources.', no_cj, no_cc), stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_table))
+doc = addParagraph(doc, '\r\n', stylename=)
+
 # Annual breakdown tables
 doc = addTitle(doc, 'Annual breakdown', level=3)
+# Breakdown of number of isolates per year
+doc = addParagraph(doc, 'Table A2. Number of human disease isolates per year', stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_years_table))
+doc = addParagraph(doc, '\r\n', stylename=)
+
+# Breakdown of attribution per year
 # C. jejuni
 # Get significant figures
 cj_years_mean[,-1] = signif(cj_years_mean[,-1], 3)
 # Display table
-doc = addParagraph(doc, sprintf('Table A1. Proportion of %s C. jejuni attributed to animal and environmental sources between %s and %s.', no_cj, min_date_cj, max_date_cj), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A3. Proportion of %s C. jejuni isolates attributed to putative sources between %s and %s', no_cj, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_years_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
 # C. coli
 # Get significant figures
 cc_years_mean[,-1] = signif(cc_years_mean[,-1], 3)
 # Display table
-doc = addParagraph(doc, sprintf('Table A2. Proportion of %s C. coli attributed to animal and environmental sources between %s and %s.', no_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A4. Proportion of %s C. coli isolates attributed to putative sources between %s and %s.', no_cc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_years_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
-
 
 writeDoc(doc, "FSA_Report_Skeleton.docx")
