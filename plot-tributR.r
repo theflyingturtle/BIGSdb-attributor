@@ -76,7 +76,7 @@ cj_overall_summary = melt(tapply(cj_ancs_long$value, cj_ancs_long$variable, mean
 cj_overall_summary = cj_overall_summary[order(-cj_overall_summary$Proportion),]
 cj_overall_summary$Source = factor(cj_overall_summary$Source, levels=unique(as.character(cj_overall_summary$Source)))
 # Generate bar plot showing overall proportions
-cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
 
 # Repeat for C. coli
 cc_sources <- ancs_cc %>%
@@ -89,7 +89,7 @@ cc_ancs_long = melt(cc_sources)
 cc_overall_summary = melt(tapply(cc_ancs_long$value, cc_ancs_long$variable, mean), varnames="Source", value.name="Proportion")
 cc_overall_summary = cc_overall_summary[order(-cc_overall_summary$Proportion),]
 cc_overall_summary$Source = factor(cc_overall_summary$Source, levels=unique(as.character(cc_overall_summary$Source)))
-cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
 
 # Plot C. jejuni and C. coli graphs on same axis
 overall_plot = plot_grid(cj_overall_plot, cc_overall_plot, labels=c("A", "B"), align="h")
@@ -208,7 +208,7 @@ cc_years_count = cc_years_count[,retain]
 # Plot C. jejuni and C. coli annual breakdown in single figure
 yearly_plot = plot_grid(cj_years_plot, cc_years_plot, labels=c("A", "B"), nrow = 2, align = "v")
 # Save figure to output directory
-ggsave("Figure3.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+ggsave("Figure4.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 # Additional code for saving bar graphs
 #yearly_bar_plot = plot_grid(cj_years_bar_plot, cc_years_bar_plot, labels=c("A", "B"), nrow = 2, align = "v")
 #ggsave("Figure3BarGraph.svg", plot=yearly_bar_plot, device="svg", width=210, height=148, units="mm", dpi=300)
@@ -224,7 +224,8 @@ overall_years = overall_years_table
 overall_years$Year = as.integer(overall_years$Year)
 # Convert data to long form
 overall_years_long = melt(overall_years, id = "Year", variable.name = "Species", value.name = "Count")
-ggplot(data=overall_years_long, aes(x = Year, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Year", y="Number of isolates") + theme_grey()
+overall_year_counts_plot = ggplot(data=overall_years_long, aes(x = Year, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Year", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("Figure3.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 # FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
 ## Quarterly breakdown ##
@@ -305,10 +306,12 @@ doc <- addPageBreak(doc)
 doc = addTitle(doc, 'Annual breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.\r\nNote that tabulated data for all figures are provided in the Appendices.\r\n', stylename = 'Normal')
 # Annual isolate count plot
+doc = addPlot(doc , fun=print, x=overall_year_counts_plot)
+doc = addParagraph(doc, sprintf('Figure 3. Number of C. jejuni and C. coli isolates collected between %s and %s.', ), stylename='Normal')
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
-doc = addParagraph(doc, sprintf('Figure 3. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 4. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
