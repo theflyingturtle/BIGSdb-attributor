@@ -17,14 +17,12 @@ set_fill_colours = scale_fill_manual(values = c("Cattle" = "#6FBAFF", "Chicken" 
 ### File processing ###
 # Open C. jejuni file, convert missing data to NA and drop rows without dates
 # Note that PubMLST dates are in ISO 8601 format (for xx/xx/xxxx use format=format='%d-%m-%Y')
-# /Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/OXC_Long_Cj_inferred-ancestry.csv
-# /Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/OXC_Long_Cc_inferred-ancestry.csv
-ancs_cj = read.csv("/Users/MelissaJvR/Documents/FSAScripting/Rdemodata.csv", header=TRUE, check.names=TRUE)
+ancs_cj = read.csv("/Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/OXC_Long_Cj_inferred-ancestry.csv", header=TRUE, check.names=TRUE)
 ancs_cj[ancs_cj==""] <- NA
 ancs_cj$date <- as.Date(ancs_cj$date)
 cj = ancs_cj[!is.na(ancs_cj$date),]
 # Repeat for C. coli
-ancs_cc = read.csv("/Users/MelissaJvR/Documents/FSAScripting/RdemodataCcmock.csv", header=TRUE, check.names=TRUE)
+ancs_cc = read.csv("/Users/MelissaJvR/Desktop/FSA_Final/RInputFiles/OXC_Long_Cc_inferred-ancestry.csv", header=TRUE, check.names=TRUE)
 ancs_cc[ancs_cc==""] <- NA
 ancs_cc$date <- as.Date(ancs_cc$date)
 cc = ancs_cc[!is.na(ancs_cc$date),]
@@ -211,7 +209,7 @@ yearly_plot = plot_grid(cj_years_plot, cc_years_plot, labels=c("A", "B"), nrow =
 ggsave("Figure4.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 # Additional code for saving bar graphs
 #yearly_bar_plot = plot_grid(cj_years_bar_plot, cc_years_bar_plot, labels=c("A", "B"), nrow = 2, align = "v")
-#ggsave("Figure3BarGraph.svg", plot=yearly_bar_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+#ggsave("Figure4BarGraph.svg", plot=yearly_bar_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 # Generate combined summary table of number of isolates per year
 overall_years_table = full_join(cj_years_count, cc_years_count, by = "Year")
@@ -225,14 +223,15 @@ overall_years$Year = as.integer(overall_years$Year)
 # Convert data to long form
 overall_years_long = melt(overall_years, id = "Year", variable.name = "Species", value.name = "Count")
 overall_year_counts_plot = ggplot(data=overall_years_long, aes(x = Year, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Year", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("Figure3.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+ggsave("Figure3.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
-# FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
 ## Quarterly breakdown ##
 # C. jejuni
 # Add quarters column to date-complete dataset
 cj_quarters = cj
 cj_quarters$Quarter = as.yearqtr(cj_quarters$date, format = "%Y-%m-%d")
+# Coerce quarter into graphable format
+cj_quarters$Quarter = format(cj_quarters$Quarter, format = "%Y.%q")
 # Drop unnecessary columns
 cj_quarters <- cj_quarters %>%
     select(-matches('id'))
@@ -242,21 +241,76 @@ cj_quarters <- cj_quarters %>%
     select(-matches('date'))
 # Get mean by quarter over time
 cj_quarters_mean = aggregate(.~Quarter, cj_quarters, mean)
-# Convert to long form
+# Convert to long form and force quarter to be read as numeric
 cj_quarters_mean_long = melt(cj_quarters_mean, id="Quarter", variable.name = "Source", value.name = "Proportion")
+cj_quarters_mean_long$Quarter = as.numeric(cj_quarters_mean_long$Quarter)
+
+# Re-order
+cj_quarters_order = order(ordered(cj_quarters_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
+cj_quarters_mean_long = cj_quarters_mean_long[cj_quarters_order,]
+cj_quarters_mean_long$Source = factor(cj_quarters_mean_long$Source, levels=unique(as.character(cj_quarters_mean_long$Source)))
 
 # Generate area plot
-# Should convert quarters to numeric, but they're categorical...
-# Attempt 1 - x-axis issue as for bar graphs
-# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours
+cj_quarters_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time", y="Proportion of isolates")
 
 # Generate bar graph
-# Basic plot with incorrect x-axis
+# Basic plot - needs changes to x-axis
 # cj_quarters_bar_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
-# As above but with rotated x-axis labels
-# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# Attempt at sorting out axis labels into proper quarter format (requires zoo)
-# ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + scale_x_yearqtr(format="%Y Q%q")
+
+# Count C. jejuni isolates per quarter
+cj_quarters_count = aggregate(.~Quarter, cj_quarters, FUN= length)
+colnames(cj_quarters_count)[2] <- "Count"
+retain = c("Quarter","Count")
+cj_quarters_count = cj_quarters_count[,retain]
+
+# Repeat for C. coli
+cc_quarters = cc
+cc_quarters$Quarter = as.yearqtr(cc_quarters$date, format = "%Y-%m-%d")
+cc_quarters$Quarter = format(cc_quarters$Quarter, format = "%Y.%q")
+cc_quarters <- cc_quarters %>%
+    select(-matches('id'))
+cc_quarters <- cc_quarters %>%
+    select(-matches('species'))
+cc_quarters <- cc_quarters %>%
+    select(-matches('date'))
+cc_quarters_mean = aggregate(.~Quarter, cc_quarters, mean)
+cc_quarters_mean_long = melt(cc_quarters_mean, id="Quarter", variable.name = "Source", value.name = "Proportion")
+cc_quarters_mean_long$Quarter = as.numeric(cc_quarters_mean_long$Quarter)
+cc_quarters_order = order(ordered(cc_quarters_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
+cc_quarters_mean_long = cc_quarters_mean_long[cc_quarters_order,]
+cc_quarters_mean_long$Source = factor(cc_quarters_mean_long$Source, levels=unique(as.character(cc_quarters_mean_long$Source)))
+
+# Generate area plot
+cc_quarters_plot = ggplot(cc_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time", y="Proportion of isolates")
+
+# Generate bar graph
+# Basic plot - needs changes to x-axis
+# cc_quarters_bar_plot = ggplot(cc_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
+
+# Count C. coli isolates per quarter
+cc_quarters_count = aggregate(.~Quarter, cc_quarters, FUN= length)
+colnames(cc_quarters_count)[2] <- "Count"
+retain = c("Quarter","Count")
+cc_quarters_count = cc_quarters_count[,retain]
+
+# Plot C. jejuni and C. coli quarterly breakdown in single figure
+quarterly_plot = plot_grid(cj_quarters_plot, cc_quarters_plot, labels=c("A", "B"), nrow = 2, align = "v")
+# Save figure to output directory
+ggsave("Figure6.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+
+# Generate combined summary table of number of isolates per quarter
+overall_quarters_table = full_join(cj_quarters_count, cc_quarters_count, by = "Quarter")
+colnames(overall_quarters_table) <- c("Year.Quarter", "C. jejuni", "C. coli")
+
+# Plot number of isolates per year
+# Prepare data
+overall_quarters = overall_quarters_table
+# Convert years to numeric for graphing
+overall_quarters$`Year.Quarter` = as.numeric(overall_quarters$`Year.Quarter`)
+# Convert data to long form
+overall_quarters_long = melt(overall_quarters, id = "Year.Quarter", variable.name = "Species", value.name = "Count")
+overall_quarter_counts_plot = ggplot(data=overall_quarters_long, aes(x = `Year.Quarter`, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Time", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("Figure5.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 ### Report generation ###
 ## Create document and title ##
@@ -285,16 +339,15 @@ doc <- addPageBreak(doc)
 
 ## Results ##
 doc = addTitle(doc, 'Results', level=2)
-doc = addParagraph(doc, 'Add any introductory text here.', stylename = 'Normal')
 
 # Data cleaning
-doc = addTitle(doc, 'Data cleaning', level=3)
+doc = addTitle(doc, 'Post-attribution data cleaning', level=3)
 doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, %s (%s %%) C. jejuni and %s (%s %%) C. coli isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cj_missing_dates_prop, cc_missing_dates, cc_missing_dates_prop), stylename='Normal')
 
 # Overall summary
 doc = addTitle(doc, 'Overall summary', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
-doc = addParagraph(doc, 'Note that tabulated data for Figure 1 are provided in the Appendices.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for Figure 1 are provided in the Appendices.', stylename = 'Normal')
 # Overall summary plot
 doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
 doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
@@ -307,7 +360,7 @@ doc <- addPageBreak(doc)
 # Annual breakdown section
 doc = addTitle(doc, 'Annual breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
-doc = addParagraph(doc, 'Note that tabulated data for all figures are provided in the Appendices.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
 # Annual isolate count plot
 doc = addPlot(doc , fun=print, x=overall_year_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
 doc = addParagraph(doc, 'Figure 3. Number of C. jejuni and C. coli isolates per year.', stylename='Normal')
@@ -315,6 +368,20 @@ doc = addParagraph(doc, 'Figure 3. Number of C. jejuni and C. coli isolates per 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
 doc = addParagraph(doc, sprintf('Figure 4. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
+
+doc <- addPageBreak(doc)
+
+# Quarterly breakdown section
+doc = addTitle(doc, 'Quarterly breakdown', level=3)
+doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
+# Quarterly isolate count plot
+doc = addPlot(doc , fun=print, x=overall_quarter_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
+doc = addParagraph(doc, 'Figure 5. Number of C. jejuni and C. coli isolates per quarter.', stylename='Normal')
+
+# Quarterly isolate count plot
+doc = addPlot(doc , fun=print, x=quarterly_plot)
+doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
@@ -338,15 +405,38 @@ doc = addParagraph(doc, '\r\n', stylename=)
 # Get significant figures
 cj_years_mean[,-1] = signif(cj_years_mean[,-1], 3)
 # Display table
-doc = addParagraph(doc, sprintf('Table A3. Proportion of %s C. jejuni isolates attributed to putative sources between %s and %s', no_cj, min_date_cj, max_date_cj), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A3. Proportion of %s C. jejuni isolates attributed to putative sources per year between %s and %s', no_cj, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_years_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
 # C. coli
 # Get significant figures
 cc_years_mean[,-1] = signif(cc_years_mean[,-1], 3)
 # Display table
-doc = addParagraph(doc, sprintf('Table A4. Proportion of %s C. coli isolates attributed to putative sources between %s and %s.', no_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A4. Proportion of %s C. coli isolates attributed to putative sources per year between %s and %s.', no_cc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_years_mean))
+doc = addParagraph(doc, '\r\n', stylename=)
+
+# Annual breakdown tables
+doc = addTitle(doc, 'Quarterly breakdown', level=3)
+# Breakdown of number of isolates per quarter
+doc = addParagraph(doc, 'Table A5. Number of human disease isolates per quarter', stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_quarters_table))
+doc = addParagraph(doc, '\r\n', stylename=)
+
+# Breakdown of attribution per quarter
+# C. jejuni
+# Get significant figures
+cj_quarters_mean[,-1] = signif(cj_quarters_mean[,-1], 3)
+# Display table
+doc = addParagraph(doc, sprintf('Table A3. Proportion of %s C. jejuni isolates attributed to putative sources per quarter between %s and %s', no_cj, min_date_cj, max_date_cj), stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(cj_quarters_mean))
+doc = addParagraph(doc, '\r\n', stylename=)
+# C. coli
+# Get significant figures
+cc_quarters_mean[,-1] = signif(cc_quarters_mean[,-1], 3)
+# Display table
+doc = addParagraph(doc, sprintf('Table A4. Proportion of %s C. coli isolates attributed to putative sources per quarter between %s and %s.', no_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(cc_quarters_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
 
 writeDoc(doc, "FSA_Report_Skeleton.docx")
