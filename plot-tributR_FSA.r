@@ -44,11 +44,23 @@ no_ancs_cj = nrow(ancs_cj)
 no_cj = nrow(cj)
 cj_missing_dates = no_ancs_cj - no_cj
 cj_missing_dates_prop = round((cj_missing_dates/no_ancs_cj*100), digits=2)
+all_cj_oxc = sum(ancs_cj$site == 'Oxfordshire')
+all_cj_nwc = sum(ancs_cj$site == 'Newcastle')
+dated_cj_oxc = sum(cj$site == 'Oxfordshire')
+dated_cj_nwc = sum(cj$site == 'Newcastle')
+cj_oxc_missing_dates = all_cj_oxc - dated_cj_oxc 
+cj_nwx_missing_dates = all_cj_nwc - dated_cj_nwc
 # C. coli
 no_ancs_cc = nrow(ancs_cc)
 no_cc = nrow(cc)
 cc_missing_dates = no_ancs_cc - no_cc
 cc_missing_dates_prop = round((cc_missing_dates/no_ancs_cc*100), digits=2)
+all_cc_oxc = sum(ancs_cc$site == 'Oxfordshire')
+all_cc_nwc = sum(ancs_cc$site == 'Newcastle')
+dated_cc_oxc = sum(cc$site == 'Oxfordshire')
+dated_cc_nwc = sum(cc$site == 'Newcastle')
+cc_oxc_missing_dates = all_cc_oxc - dated_cc_oxc 
+cc_nwx_missing_dates = all_cc_nwc - dated_cc_nwc
 ## Max and min dates
 # C. jejuni
 max_date_cj = format(max(as.Date(cj$date, format="%d/%m/%Y")), "%B %Y")
@@ -80,7 +92,7 @@ cj_anc_sites_long = melt(cj_anc_sites, id="site", variable.name="Source", value.
 cj_sbs_summary = setNames(data.frame(t(cj_anc_sites[,-1])), cj_anc_sites[,1])
 
 # Generate grouped bar graph showing site-by-site proportions
-cj_sbs_overall_plot = ggplot(cj_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sites", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
+cj_sbs_overall_plot = ggplot(cj_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sources", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
     theme(legend.position="bottom", legend.direction = "horizontal")
 
 # Overall summary
@@ -109,7 +121,7 @@ cc_anc_sites_long = melt(cc_anc_sites, id="site", variable.name="Source", value.
 # Site-by-site summary
 cc_sbs_summary = setNames(data.frame(t(cc_anc_sites[,-1])), cc_anc_sites[,1])
 # Site-by-site plot
-cc_sbs_overall_plot = ggplot(cc_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sites", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
+cc_sbs_overall_plot = ggplot(cc_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sources", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
     theme(legend.position="bottom", legend.direction = "horizontal")
 
 # Overall summary
@@ -350,64 +362,38 @@ doc = addTitle(doc, 'Results', level=2)
 
 # Data cleaning
 doc = addTitle(doc, 'Post-attribution data cleaning', level=3)
-doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, %s (%s %%) C. jejuni and %s (%s %%) C. coli isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cj_missing_dates_prop, cc_missing_dates, cc_missing_dates_prop), stylename='Normal')
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses presented below.  Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire', no_ancs_cj, no_ancs_cc, cj_nwx_missing_dates, cj_oxc_missing_dates, cc_nwx_missing_dates, cc_oxc_missing_dates), stylename='Normal')
+
+# Overall summary
+doc = addTitle(doc, 'Overall summary', level=3)
+doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for Figure 1 are provided in the Appendices.', stylename = 'Normal')
+# Overall summary plot
+# Overall summary plot
+doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
+doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
+
+# Overall site-by-site plot
+doc = addPlot(doc, fun=print, x=overall_sites_plot, width=6, height=4)
+doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates from Oxfordshire and Newcastle/North Tyneside attributed to putative sources. Probabilistic assignment of (A) C. jejuni collected between %s and %s, and (B) C. coli collected between %s and %s.', min_date_cj, max_date_cj, min_date_cc, max_date_cc), stylename='Normal')
+
+doc <- addPageBreak(doc)
 
 
-# Numbers of isolates before and after data cleaning
-doc = addTitle(doc, 'Data cleaning', level=3)
-doc = addParagraph(doc, sprintf('Inferred ancestries for %s C. jejuni and %s C. coli isolates were loaded for summarising. All isolates are included in the "Overall summaries" section. Later sections required isolation/laboratory receipt dates, so %s C. jejuni and %s C. coli isolates with missing data were excluded. In total, %s C. jejuni and %s C. coli were included in the date-based summaries.', no_ancs_cj, no_ancs_cc, cj_missing_dates, cc_missing_dates, no_cj, no_cc), stylename='Normal')
 
-# Overall summaries section
-doc = addTitle(doc, 'Overall summaries', level=3)
+doc <- addPageBreak(doc)
+
+## Appendices ##
+doc = addTitle(doc, 'Appendices', level=2)
+# Overall summary
 # Overall summary table
-doc = addParagraph(doc, 'Table 1. Estimated proportion of human disease isolates attributed to animal and environmental sources.', stylename='Normal')
+doc = addTitle(doc, 'Overall summary', level=3)
+doc = addParagraph(doc, sprintf('Table A1. Estimated proportion of %s C. jejuni and %s C. coli human disease isolates attributed to putative sources', no_cj, no_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(overall_table))
 doc = addParagraph(doc, '\r\n', stylename=)
-# Overall summary plot
-doc = addPlot(doc , fun=print, x=overall_plot, width=7, height=4)
-doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to animal and environmental sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
-
-# Site-by-site overall summaries section
 # Overall site-by-site table
-doc = addParagraph(doc, 'Table 2. ADD TITLE.', stylename='Normal')
+doc = addParagraph(doc, 'Table A2. Estimated proportion of C. jejuni and C. coli human disease isolates from Oxfordshire and Newcastle/North Tyneside attributed to putative sources', stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(sbs_table))
 doc = addParagraph(doc, '\r\n', stylename=)
-# Overall site-by-site plot
-doc = addPlot(doc, fun=print, x=overall_sites_plot, width=7, height=4)
-doc = addParagraph(doc, sprintf('Figure 2. ADD LEGEND.'), stylename='Normal')
-# # Overall ancestries plot
-# doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot)
-# doc = addParagraph(doc, sprintf('Figure . Source probabilities for individual human disease isolates. Probabilistic assignment of (A) %s C. jejuni and (B) %s C. coli isolates. Isolates are represented as vertical bars coloured according to the estimated probability for each source. Isolates are ordered horizontally by most likely source, and by decreasing probability within each source.', no_ancs_cj, no_ancs_cc), stylename='Normal')
-# doc <- addPageBreak(doc)
-
-# # Annual breakdown section
-# doc = addTitle(doc, 'Annual breakdown', level=3)
-# # Breakdown of number of isolates per year
-# doc = addParagraph(doc, 'Table 2. Number of human disease isolates per year.', stylename='Normal')
-# doc = addFlexTable(doc, vanilla.table(overall_years_table))
-# doc = addParagraph(doc, '\r\n', stylename=)
-# # Annual breakdown plot
-# doc = addPlot(doc , fun=print, x=yearly_plot)
-# doc = addParagraph(doc, sprintf('Figure . Proportion of (A) %s C. jejuni and (B) %s C. coli human disease isolates attributed to animal and environmental sources over time. Bars are ordered from major (bottom) to minor (top) sources.', no_cj, no_cc), stylename='Normal')
-
-# ## Appendices ##
-# doc = addTitle(doc, 'Appendices', level=2)
-# # Annual breakdown tables
-# doc = addTitle(doc, 'Annual breakdown', level=3)
-# # C. jejuni
-# # Get significant figures
-# cj_years_mean[,-1] = signif(cj_years_mean[,-1], 3)
-# # Display table
-# doc = addParagraph(doc, sprintf('Table A1. Proportion of %s C. jejuni attributed to animal and environmental sources between %s and %s.', no_cj, min_date_cj, max_date_cj), stylename='Normal')
-# doc = addFlexTable(doc, vanilla.table(cj_years_mean))
-# doc = addParagraph(doc, '\r\n', stylename=)
-# # C. coli
-# # Get significant figures
-# cc_years_mean[,-1] = signif(cc_years_mean[,-1], 3)
-# # Display table
-# doc = addParagraph(doc, sprintf('Table A2. Proportion of %s C. coli attributed to animal and environmental sources between %s and %s.', no_cc, min_date_cc, max_date_cc), stylename='Normal')
-# doc = addFlexTable(doc, vanilla.table(cc_years_mean))
-# doc = addParagraph(doc, '\r\n', stylename=)
-
 
 writeDoc(doc, "FSA_Report_Skeleton.docx")
