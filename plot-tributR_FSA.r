@@ -220,8 +220,56 @@ overall_ind_ancs_plot = plot_grid(cj_ind_ancs_plot_nwc, cj_ind_ancs_plot_oxc, cc
 # Save figure to output directory
 ggsave("Figure3.svg", plot=overall_ind_ancs_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
+## Annual breakdown ##
+# C. jejuni
+# Add years column to date-complete dataset
+cj_years = cj
+cj_years$Year = format(cj_years$date,format="%Y")
+# Drop unnecessary columns
+cj_years <- cj_years %>%
+    select(-matches('id'))
+cj_years <- cj_years %>%
+    select(-matches('species'))
+cj_years <- cj_years %>%
+    select(-matches('date'))
+# Separate data into Oxfordshire and Newcastle
+cj_years_oxc = cj_years[cj_years$site == 'Oxfordshire',]
+cj_years_nwc = cj_years[cj_years$site == 'Newcastle',]
+# Drop site column
+cj_years_oxc <- cj_years_oxc %>%
+	select(-matches('site'))
+cj_years_nwc <- cj_years_nwc %>%
+	select(-matches('site'))
 
-# # FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
+# Get averages by year
+cj_years_oxc_mean = aggregate(.~Year, cj_years_oxc, mean)
+cj_years_nwc_mean = aggregate(.~Year, cj_years_nwc, mean)
+# Convert to long form
+cj_years_oxc_mean_long = melt(cj_years_oxc_mean, id="Year", variable.name = "Source", value.name = "Proportion")
+cj_years_nwc_mean_long = melt(cj_years_nwc_mean, id="Year", variable.name = "Source", value.name = "Proportion")
+# Read year as numeric to get proper x-axis labels in the area plot
+cj_years_oxc_mean_long$Year = as.numeric(cj_years_oxc_mean_long$Year)
+cj_years_nwc_mean_long$Year = as.numeric(cj_years_nwc_mean_long$Year)
+
+# Re-order the dataframe so that bars will be stacked from major (bottom) to minor (top) sources
+cj_years_oxc_order = order(ordered(cj_years_oxc_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
+cj_years_oxc_mean_long = cj_years_oxc_mean_long[cj_years_oxc_order,]
+cj_years_oxc_mean_long$Source = factor(cj_years_oxc_mean_long$Source, levels=unique(as.character(cj_years_oxc_mean_long$Source)))
+cj_years_nwc_order = order(ordered(cj_years_nwc_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
+cj_years_nwc_mean_long = cj_years_nwc_mean_long[cj_years_nwc_order,]
+cj_years_nwc_mean_long$Source = factor(cj_years_nwc_mean_long$Source, levels=unique(as.character(cj_years_nwc_mean_long$Source)))
+
+# # Generate area plot and manipulate x-axis to display years correctly
+# cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_mean_long$Year)), labels=c(as.character(unique(cj_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# # Alternative code for bar graph
+# #cj_years_bar_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
+
+# # Count C. jejuni isolates per year
+# cj_years_count = aggregate(.~Year, cj_years, FUN= length)
+# colnames(cj_years_count)[2] <- "Count"
+# retain = c("Year","Count")
+# cj_years_count = cj_years_count[,retain]
+
 
 
 ### Report generation ###
@@ -259,7 +307,7 @@ doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates
 # Overall summary
 doc = addTitle(doc, 'Overall summary', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
-doc = addParagraph(doc, 'Tabulated data for Figure 1 are provided in the Appendices.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for Figures 1 and 2 are provided in the Appendices.', stylename = 'Normal')
 # Overall summary plot
 # Overall summary plot
 doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
@@ -273,10 +321,12 @@ doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease
 doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot, width=6.5, height=10)
 doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual human disease isolates. Probabilistic assignment of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire. Isolates are represented as vertical bars coloured according to the estimated probability for each source as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', all_cj_nwc, all_cj_oxc, all_cc_nwc, all_cc_oxc), stylename='Normal')
 
-
 doc <- addPageBreak(doc)
 
-
+# Annual breakdown section
+doc = addTitle(doc, 'Annual breakdown', level=3)
+doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
 
 doc <- addPageBreak(doc)
 
