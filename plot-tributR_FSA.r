@@ -305,17 +305,30 @@ cc_years_oxc_plot = ggplot(cc_years_oxc_mean_long, aes(x=Year, y=Proportion, fil
 cc_years_nwc_plot = ggplot(cc_years_nwc_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_nwc_mean_long$Year)), labels=c(as.character(unique(cc_years_nwc_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Plot C. jejuni and C. coli annual breakdown in single figure
-yearly_plot = plot_grid(cj_years_nwc_plot, cj_years_oxc_plot, cc_years_nwc_plot, cc_years_oxc_plot,  labels=c("A", "B", "C", "D"), nrow = 2, align = "v")
+yearly_plot = plot_grid(cj_years_nwc_plot, cj_years_oxc_plot, cc_years_nwc_plot, cc_years_oxc_plot,  labels=c("A", "B", "C", "D"), ncol = 1)
 # Save figure to output directory
 ggsave("Figure4.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
+# Generate combined summary tables of yearly attribution
+cj_years_mean = merge(cj_years_nwc_mean, cj_years_oxc_mean, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (NWC)", " (OXC)"))
+cc_years_mean = merge(cc_years_nwc_mean, cc_years_oxc_mean, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (NWC)", " (OXC)"))
 
-
-# # Count C. jejuni isolates per year
-# cj_years_count = aggregate(.~Year, cj_years, FUN= length)
-# colnames(cj_years_count)[2] <- "Count"
-# retain = c("Year","Count")
-# cj_years_count = cj_years_count[,retain]
+# Generate counts per year
+# Count C. jejuni isolates per year
+retain = c("Year","Count")
+cj_years_oxc_count = aggregate(.~Year, cj_years_oxc, FUN= length)
+colnames(cj_years_oxc_count)[2] <- "Count"
+cj_years_oxc_count = cc_years_oxc_count[,retain]
+cj_years_nwc_count = aggregate(.~Year, cj_years_nwc, FUN= length)
+colnames(cj_years_nwc_count)[2] <- "Count"
+cj_years_nwc_count = cc_years_nwc_count[,retain]
+# Repeat for C. coli
+cc_years_oxc_count = aggregate(.~Year, cc_years_oxc, FUN= length)
+colnames(cc_years_oxc_count)[2] <- "Count"
+cc_years_oxc_count = cc_years_oxc_count[,retain]
+cc_years_nwc_count = aggregate(.~Year, cc_years_nwc, FUN= length)
+colnames(cc_years_nwc_count)[2] <- "Count"
+cc_years_nwc_count = cc_years_nwc_count[,retain]
 
 
 
@@ -376,7 +389,7 @@ doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
 
 # Annual attribution plot
-doc = addPlot(doc , fun=print, x=yearly_plot)
+doc = addPlot(doc , fun=print, x=yearly_plot, width=6.5, height=10)
 doc = addParagraph(doc, sprintf('Figure 4. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire.  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
