@@ -157,8 +157,6 @@ sbs_table[,-1] = signif(sbs_table[,-1], 3)
 # Correct header
 colnames(sbs_table)[1] <- "Sources"
 
-#### START HERE ######
-
 # Generate individual ancestries plots
 # C. jejuni
 # Retrieve sources dataframe
@@ -218,119 +216,13 @@ cc_ind_ancs_plot_oxc = ggplot(cc_ind_ancs_long_oxc, aes(x=rank, y=Proportion, fi
 cc_ind_ancs_plot_nwc = ggplot(cc_ind_ancs_long_nwc, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + set_fill_colours
 
 # Plot C. jejuni and C. coli individual ancestry graphs in single figure
-overall_ind_ancs_plot = plot_grid(cj_ind_ancs_plot_nwc, cj_ind_ancs_plot_oxc, cc_ind_ancs_plot_nwc, cc_ind_ancs_plot_oxc, labels = c("A", "B", "C", "D"), ncol = 2)
+overall_ind_ancs_plot = plot_grid(cj_ind_ancs_plot_nwc, cj_ind_ancs_plot_oxc, cc_ind_ancs_plot_nwc, cc_ind_ancs_plot_oxc, labels = c("A", "B", "C", "D"), ncol = 1)
 # Save figure to output directory
 ggsave("Figure3.svg", plot=overall_ind_ancs_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 
 # # FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
-# ## Annual breakdown ##
-# # C. jejuni
-# # Add years column to date-complete dataset
-# cj_years = cj
-# cj_years$Year = format(cj_years$date,format="%Y")
-# # Drop unnecessary columns
-# cj_years <- cj_years %>%
-#     select(-matches('id'))
-# cj_years <- cj_years %>%
-#     select(-matches('species'))
-# cj_years <- cj_years %>%
-#     select(-matches('date'))
-# # Get averages by year
-# cj_years_mean = aggregate(.~Year, cj_years, mean)
-# # Convert to long form
-# cj_years_mean_long = melt(cj_years_mean, id="Year", variable.name = "Source", value.name = "Proportion")
-# # Read year as numeric to get proper x-axis labels in the area plot
-# cj_years_mean_long$Year = as.numeric(cj_years_mean_long$Year)
 
-# # Re-order the dataframe so that bars will be stacked from major (bottom) to minor (top) sources
-# cj_years_order = order(ordered(cj_years_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
-# cj_years_mean_long = cj_years_mean_long[cj_years_order,]
-# cj_years_mean_long$Source = factor(cj_years_mean_long$Source, levels=unique(as.character(cj_years_mean_long$Source)))
-
-# # Generate area plot and manipulate x-axis to display years correctly
-# cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_mean_long$Year)), labels=c(as.character(unique(cj_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours
-# # Alternative code for bar graph
-# #cj_years_bar_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
-
-# # Count C. jejuni isolates per year
-# cj_years_count = aggregate(.~Year, cj_years, FUN= length)
-# colnames(cj_years_count)[2] <- "No. isolates"
-# retain = c("Year","No. isolates")
-# cj_years_count = cj_years_count[,retain]
-
-# # Repeat for C. coli
-# # Set up data
-# cc_years = cc
-# cc_years$Year = format(cc_years$date,format="%Y")
-# cc_years <- cc_years %>%
-#     select(-matches('id'))
-# cc_years <- cc_years %>%
-#     select(-matches('species'))
-# cc_years <- cc_years %>%
-#     select(-matches('date'))
-# cc_years_mean = aggregate(.~Year, cc_years, mean)
-# cc_years_mean_long = melt(cc_years_mean, id="Year", variable.name = "Source", value.name = "Proportion")
-# cc_years_mean_long$Year = as.numeric(cc_years_mean_long$Year)
-
-# # Re-order
-# cc_years_order = order(ordered(cc_years_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
-# cc_years_mean_long = cc_years_mean_long[cc_years_order,]
-# cc_years_mean_long$Source = factor(cc_years_mean_long$Source, levels=unique(as.character(cc_years_mean_long$Source)))
-
-# # Generate plot
-# cc_years_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_mean_long$Year)), labels=c(as.character(unique(cc_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours
-# # Alternative code for bar graph
-# #cc_years_bar_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
-
-# # Count C. coli isolates per year
-# cc_years_count = aggregate(.~Year, cc_years, FUN= length)
-# colnames(cc_years_count)[2] <- "No. isolates"
-# retain = c("Year","No. isolates")
-# cc_years_count = cc_years_count[,retain]
-
-# # Plot C. jejuni and C. coli annual breakdown in single figure
-# yearly_plot = plot_grid(cj_years_plot, cc_years_plot, labels=c("A", "B"), nrow = 2, align = "v")
-# # Save figure to output directory
-# ggsave("Figure3.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
-# # Additional code for saving bar graphs
-# #yearly_bar_plot = plot_grid(cj_years_bar_plot, cc_years_bar_plot, labels=c("A", "B"), nrow = 2, align = "v")
-# #ggsave("Figure3BarGraph.svg", plot=yearly_bar_plot, device="svg", width=210, height=148, units="mm", dpi=300)
-
-# # Generate combined summary table of no. isolates per year
-# overall_years_table = full_join(cj_years_count, cc_years_count, by = "Year")
-# colnames(overall_years_table) <- c("Year", "C. jejuni", "C. coli")
-
-# # FOR ALL DATE-BASED SUMMARIES, USE cj and cc dataframes
-# ## Quarterly breakdown ##
-# # C. jejuni
-# # Add quarters column to date-complete dataset
-# cj_quarters = cj
-# cj_quarters$Quarter = as.yearqtr(cj_quarters$date, format = "%Y-%m-%d")
-# # Drop unnecessary columns
-# cj_quarters <- cj_quarters %>%
-#     select(-matches('id'))
-# cj_quarters <- cj_quarters %>%
-#     select(-matches('species'))
-# cj_quarters <- cj_quarters %>%
-#     select(-matches('date'))
-# # Get mean by quarter over time
-# cj_quarters_mean = aggregate(.~Quarter, cj_quarters, mean)
-# # Convert to long form
-# cj_quarters_mean_long = melt(cj_quarters_mean, id="Quarter", variable.name = "Source", value.name = "Proportion")
-
-# # Generate area plot
-# # Should convert quarters to numeric, but they're categorical...
-# # Attempt 1 - x-axis issue as for bar graphs
-# # ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours
-
-# # Generate bar graph
-# # Basic plot with incorrect x-axis
-# # cj_quarters_bar_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
-# # As above but with rotated x-axis labels
-# # ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# # Attempt at sorting out axis labels into proper quarter format (requires zoo)
-# # ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours + scale_x_yearqtr(format="%Y Q%q")
 
 ### Report generation ###
 ## Create document and title ##
@@ -362,7 +254,7 @@ doc = addTitle(doc, 'Results', level=2)
 
 # Data cleaning
 doc = addTitle(doc, 'Post-attribution data cleaning', level=3)
-doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses presented below.  Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire', no_ancs_cj, no_ancs_cc, cj_nwx_missing_dates, cj_oxc_missing_dates, cc_nwx_missing_dates, cc_oxc_missing_dates), stylename='Normal')
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses presented below.  Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwx_missing_dates, cj_oxc_missing_dates, cc_nwx_missing_dates, cc_oxc_missing_dates), stylename='Normal')
 
 # Overall summary
 doc = addTitle(doc, 'Overall summary', level=3)
@@ -375,7 +267,12 @@ doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease
 
 # Overall site-by-site plot
 doc = addPlot(doc, fun=print, x=overall_sites_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates from Oxfordshire and Newcastle/North Tyneside attributed to putative sources. Probabilistic assignment of (A) C. jejuni collected between %s and %s, and (B) C. coli collected between %s and %s.', min_date_cj, max_date_cj, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates from Oxfordshire and Newcastle/North Tyneside attributed to putative sources. Probabilistic assignment of (A) %s and %s C. jejuni collected in Newcastle/North Tyneside and Oxfordshire, respectively, between %s and %s, and (B) %s and %s C. coli collected in Newcastle/North Tyneside and Oxfordshire, respectively, between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+
+# Overall individual ancestries plot
+doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot, width=6.5, height=10)
+doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual human disease isolates. Probabilistic assignment of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire. Isolates are represented as vertical bars coloured according to the estimated probability for each source as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', all_cj_nwc, all_cj_oxc, all_cc_nwc, all_cc_oxc), stylename='Normal')
+
 
 doc <- addPageBreak(doc)
 
@@ -392,7 +289,7 @@ doc = addParagraph(doc, sprintf('Table A1. Estimated proportion of %s C. jejuni 
 doc = addFlexTable(doc, vanilla.table(overall_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 # Overall site-by-site table
-doc = addParagraph(doc, 'Table A2. Estimated proportion of C. jejuni and C. coli human disease isolates from Oxfordshire and Newcastle/North Tyneside attributed to putative sources', stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A2. Estimated proportion of C. jejuni and C. coli human disease isolates from Newcastle/North Tyneside (n = %s; n = %s) and Oxfordshire (n = %s; n = %s) attributed to putative sources', all_cj_nwc, all_cc_nwc, all_cj_oxc, all_cc_oxc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(sbs_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
