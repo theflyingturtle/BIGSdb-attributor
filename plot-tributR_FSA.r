@@ -151,7 +151,7 @@ overall_table$`C. jejuni` = signif(overall_table$`C. jejuni`, 3)
 overall_table$`C. coli` = signif(overall_table$`C. coli`, 3)
 
 # Generate site-by-site summary table
-sbs_table = merge(cj_sbs_summary, cc_sbs_summary, by.x="row.names", by.y="row.names", all=TRUE, suffixes = c(".Cj",".Cc"))
+sbs_table = merge(cj_sbs_summary, cc_sbs_summary, by.x="row.names", by.y="row.names", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
 # Get significant figures
 sbs_table[,-1] = signif(sbs_table[,-1], 3)
 # Correct header
@@ -403,8 +403,29 @@ doc = addParagraph(doc, sprintf('Table A1. Estimated proportion of %s C. jejuni 
 doc = addFlexTable(doc, vanilla.table(overall_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 # Overall site-by-site table
-doc = addParagraph(doc, sprintf('Table A2. Estimated proportion of C. jejuni and C. coli human disease isolates from Newcastle/North Tyneside (n = %s; n = %s) and Oxfordshire (n = %s; n = %s) attributed to putative sources', all_cj_nwc, all_cc_nwc, all_cj_oxc, all_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A2. Estimated proportion of C. jejuni (Cj) and C. coli (Cc) human disease isolates from Newcastle/North Tyneside (n = %s; n = %s) and Oxfordshire (n = %s; n = %s) attributed to putative sources', all_cj_nwc, all_cc_nwc, all_cj_oxc, all_cc_oxc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(sbs_table))
+doc = addParagraph(doc, '\r\n', stylename=)
+
+# Annual breakdown tables
+doc = addTitle(doc, 'Annual breakdown', level=3)
+# Breakdown of number of isolates per year
+
+
+# Breakdown of attribution per year
+# C. jejuni
+# Get significant figures
+cj_years_mean[,-1] = signif(cj_years_mean[,-1], 3)
+# Display table
+doc = addParagraph(doc, sprintf('Table A3. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC) attributed to putative sources per year between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(cj_years_mean))
+doc = addParagraph(doc, '\r\n', stylename=)
+# C. coli
+# Get significant figures
+cc_years_mean[,-1] = signif(cc_years_mean[,-1], 3)
+# Display table
+doc = addParagraph(doc, sprintf('Table A4. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC) attributed to putative sources per year between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(cc_years_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
 
 writeDoc(doc, "FSA_Report_Skeleton.docx")
