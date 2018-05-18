@@ -307,7 +307,7 @@ cc_years_nwc_plot = ggplot(cc_years_nwc_mean_long, aes(x=Year, y=Proportion, fil
 # Plot C. jejuni and C. coli annual breakdown in single figure
 yearly_plot = plot_grid(cj_years_nwc_plot, cj_years_oxc_plot, cc_years_nwc_plot, cc_years_oxc_plot,  labels=c("A", "B", "C", "D"), ncol = 1)
 # Save figure to output directory
-ggsave("Figure4.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+ggsave("Figure5.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 # Generate combined summary tables of yearly attribution
 cj_years_mean = merge(cj_years_nwc_mean, cj_years_oxc_mean, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (NWC)", " (OXC)"))
@@ -318,10 +318,10 @@ cc_years_mean = merge(cc_years_nwc_mean, cc_years_oxc_mean, by.x="Year", by.y="Y
 retain = c("Year","Count")
 cj_years_oxc_count = aggregate(.~Year, cj_years_oxc, FUN= length)
 colnames(cj_years_oxc_count)[2] <- "Count"
-cj_years_oxc_count = cc_years_oxc_count[,retain]
+cj_years_oxc_count = cj_years_oxc_count[,retain]
 cj_years_nwc_count = aggregate(.~Year, cj_years_nwc, FUN= length)
 colnames(cj_years_nwc_count)[2] <- "Count"
-cj_years_nwc_count = cc_years_nwc_count[,retain]
+cj_years_nwc_count = cj_years_nwc_count[,retain]
 # Repeat for C. coli
 cc_years_oxc_count = aggregate(.~Year, cc_years_oxc, FUN= length)
 colnames(cc_years_oxc_count)[2] <- "Count"
@@ -330,6 +330,32 @@ cc_years_nwc_count = aggregate(.~Year, cc_years_nwc, FUN= length)
 colnames(cc_years_nwc_count)[2] <- "Count"
 cc_years_nwc_count = cc_years_nwc_count[,retain]
 
+# Merge counts for C. jejuni and reformat for plotting
+cj_years_count = merge(cj_years_nwc_count, cj_years_oxc_count, by.x="Year", by.y="Year", all=TRUE, suffixes = c(".NWC", ".OXC"))
+cj_years_count$Species = "C. jejuni"
+colnames(cj_years_count) <- c("Year", "Newcastle", "Oxfordshire", "Species")
+cj_years_count_long = melt(cj_years_count, id=c("Year", "Species"), variable.name = "Site", value.name = "Count")
+# Repeat for C. coli
+cc_years_count = merge(cc_years_nwc_count, cc_years_oxc_count, by.x="Year", by.y="Year", all=TRUE, suffixes = c(".NWC", ".OXC"))
+cc_years_count$Species = "C. coli"
+colnames(cc_years_count) <- c("Year", "Newcastle", "Oxfordshire", "Species")
+cc_years_count_long = melt(cc_years_count, id=c("Year", "Species"), variable.name = "Site", value.name = "Count")
+
+# Generate combined table for reporting
+cj_years_count_report <- cj_years_count %>%
+	select(-matches('Species'))
+cc_years_count_report <- cc_years_count %>%
+	select(-matches('Species'))
+overall_years_table = merge(cj_years_count_report, cc_years_count_report, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
+
+# Join C .jejuni and C. coli annual counts for plotting
+overall_year_counts = union(cj_years_count_long, cc_years_count_long)
+# Convert years to integers for graphing
+overall_year_counts$Year = as.integer(overall_year_counts$Year)
+# Generate plot
+overall_year_counts_plot = ggplot(data=overall_year_counts, aes(x = Year, y = Count)) + geom_line(aes(linetype=Species, color=Site)) + labs(x="Year", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+# Save plot
+ggsave("Figure4.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 
 ### Report generation ###
@@ -388,9 +414,13 @@ doc = addTitle(doc, 'Annual breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
 
+# Annual isolate count plot
+doc = addPlot(doc , fun=print, x=overall_year_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
+doc = addParagraph(doc, 'Figure 4. Number of C. jejuni and C. coli isolates per year.', stylename='Normal')
+
 # Annual attribution plot
-doc = addPlot(doc , fun=print, x=yearly_plot, width=6.5, height=10)
-doc = addParagraph(doc, sprintf('Figure 4. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire.  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+doc = addPlot(doc , fun=print, x=yearly_plot, width=8, height=10)
+doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire.  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
@@ -407,24 +437,28 @@ doc = addParagraph(doc, sprintf('Table A2. Estimated proportion of C. jejuni (Cj
 doc = addFlexTable(doc, vanilla.table(sbs_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
+doc <- addPageBreak(doc)
+
 # Annual breakdown tables
 doc = addTitle(doc, 'Annual breakdown', level=3)
 # Breakdown of number of isolates per year
-
+doc = addParagraph(doc, 'Table A3. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates per year', stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_years_table))
+doc = addParagraph(doc, '\r\n', stylename=)
 
 # Breakdown of attribution per year
 # C. jejuni
 # Get significant figures
 cj_years_mean[,-1] = signif(cj_years_mean[,-1], 3)
 # Display table
-doc = addParagraph(doc, sprintf('Table A3. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC) attributed to putative sources per year between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A4. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_years_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
 # C. coli
 # Get significant figures
 cc_years_mean[,-1] = signif(cc_years_mean[,-1], 3)
 # Display table
-doc = addParagraph(doc, sprintf('Table A4. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC) attributed to putative sources per year between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A5. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_years_mean))
 doc = addParagraph(doc, '\r\n', stylename=)
 
