@@ -259,10 +259,57 @@ cj_years_nwc_order = order(ordered(cj_years_nwc_mean_long$Source, levels=cj_over
 cj_years_nwc_mean_long = cj_years_nwc_mean_long[cj_years_nwc_order,]
 cj_years_nwc_mean_long$Source = factor(cj_years_nwc_mean_long$Source, levels=unique(as.character(cj_years_nwc_mean_long$Source)))
 
-# # Generate area plot and manipulate x-axis to display years correctly
-# cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_mean_long$Year)), labels=c(as.character(unique(cj_years_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-# # Alternative code for bar graph
-# #cj_years_bar_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_bar(stat="identity") + set_fill_colours
+# Generate area plot and manipulate x-axis to display years correctly
+cj_years_oxc_plot = ggplot(cj_years_oxc_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_oxc_mean_long$Year)), labels=c(as.character(unique(cj_years_oxc_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+cj_years_nwc_plot = ggplot(cj_years_nwc_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_nwc_mean_long$Year)), labels=c(as.character(unique(cj_years_nwc_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Repeat for C. coli
+cc_years = cc
+cc_years$Year = format(cc_years$date,format="%Y")
+# Drop unnecessary columns
+cc_years <- cc_years %>%
+    select(-matches('id'))
+cc_years <- cc_years %>%
+    select(-matches('species'))
+cc_years <- cc_years %>%
+    select(-matches('date'))
+# Separate data into Oxfordshire and Newcastle
+cc_years_oxc = cc_years[cc_years$site == 'Oxfordshire',]
+cc_years_nwc = cc_years[cc_years$site == 'Newcastle',]
+# Drop site column
+cc_years_oxc <- cc_years_oxc %>%
+	select(-matches('site'))
+cc_years_nwc <- cc_years_nwc %>%
+	select(-matches('site'))
+
+# Get averages by year
+cc_years_oxc_mean = aggregate(.~Year, cc_years_oxc, mean)
+cc_years_nwc_mean = aggregate(.~Year, cc_years_nwc, mean)
+# Convert to long form
+cc_years_oxc_mean_long = melt(cc_years_oxc_mean, id="Year", variable.name = "Source", value.name = "Proportion")
+cc_years_nwc_mean_long = melt(cc_years_nwc_mean, id="Year", variable.name = "Source", value.name = "Proportion")
+# Read year as numeric to get proper x-axis labels in the area plot
+cc_years_oxc_mean_long$Year = as.numeric(cc_years_oxc_mean_long$Year)
+cc_years_nwc_mean_long$Year = as.numeric(cc_years_nwc_mean_long$Year)
+
+# Re-order the dataframe so that bars will be stacked from major (bottom) to minor (top) sources
+cc_years_oxc_order = order(ordered(cc_years_oxc_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
+cc_years_oxc_mean_long = cc_years_oxc_mean_long[cc_years_oxc_order,]
+cc_years_oxc_mean_long$Source = factor(cc_years_oxc_mean_long$Source, levels=unique(as.character(cc_years_oxc_mean_long$Source)))
+cc_years_nwc_order = order(ordered(cc_years_nwc_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
+cc_years_nwc_mean_long = cc_years_nwc_mean_long[cc_years_nwc_order,]
+cc_years_nwc_mean_long$Source = factor(cc_years_nwc_mean_long$Source, levels=unique(as.character(cc_years_nwc_mean_long$Source)))
+
+# Generate area plot and manipulate x-axis to display years correctly
+cc_years_oxc_plot = ggplot(cc_years_oxc_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_oxc_mean_long$Year)), labels=c(as.character(unique(cc_years_oxc_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+cc_years_nwc_plot = ggplot(cc_years_nwc_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_nwc_mean_long$Year)), labels=c(as.character(unique(cc_years_nwc_mean_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Plot C. jejuni and C. coli annual breakdown in single figure
+yearly_plot = plot_grid(cj_years_nwc_plot, cj_years_oxc_plot, cc_years_nwc_plot, cc_years_oxc_plot,  labels=c("A", "B", "C", "D"), nrow = 2, align = "v")
+# Save figure to output directory
+ggsave("Figure4.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+
+
 
 # # Count C. jejuni isolates per year
 # cj_years_count = aggregate(.~Year, cj_years, FUN= length)
@@ -327,6 +374,10 @@ doc <- addPageBreak(doc)
 doc = addTitle(doc, 'Annual breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
+
+# Annual attribution plot
+doc = addPlot(doc , fun=print, x=yearly_plot)
+doc = addParagraph(doc, sprintf('Figure 4. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire.  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
