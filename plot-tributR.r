@@ -74,7 +74,7 @@ cj_overall_summary = melt(tapply(cj_ancs_long$value, cj_ancs_long$variable, mean
 cj_overall_summary = cj_overall_summary[order(-cj_overall_summary$Proportion),]
 cj_overall_summary$Source = factor(cj_overall_summary$Source, levels=unique(as.character(cj_overall_summary$Source)))
 # Generate bar plot showing overall proportions
-cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + xlab("C. jejuni") + ylab("Proportion") + theme_grey(base_size = 14) + theme(axis.title.x = element_text(face="italic"), axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Repeat for C. coli
 cc_sources <- ancs_cc %>%
@@ -87,7 +87,7 @@ cc_ancs_long = melt(cc_sources)
 cc_overall_summary = melt(tapply(cc_ancs_long$value, cc_ancs_long$variable, mean), varnames="Source", value.name="Proportion")
 cc_overall_summary = cc_overall_summary[order(-cc_overall_summary$Proportion),]
 cc_overall_summary$Source = factor(cc_overall_summary$Source, levels=unique(as.character(cc_overall_summary$Source)))
-cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + xlab("C. coli") + ylab("Proportion") + theme_grey(base_size = 14) + theme(axis.title.x = element_text(face="italic"), axis.text.x = element_text(angle = 45, hjust = 1))
 
 # Plot C. jejuni and C. coli graphs on same axis
 overall_plot = plot_grid(cj_overall_plot, cc_overall_plot, labels=c("A", "B"), align="h")
@@ -118,7 +118,7 @@ cj_sources$rank <- seq.int(nrow(cj_sources))
 cj_ind_ancs_long = melt(cj_sources, id=c("rank", "poprank", "maxprob"), variable.name = "Source", value.name = "Proportion")
 
 # Generate individual ancestries plot
-cj_ind_ancs_plot = ggplot(cj_ind_ancs_long, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + set_fill_colours
+cj_ind_ancs_plot = ggplot(cj_ind_ancs_long, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + set_fill_colours + guides(fill=guide_legend(title="C. jejuni")) + theme(legend.title = element_text(face = "italic"))
 
 # Repeat for C. coli
 cc_sources$poprank = colnames(cc_sources)[apply(cc_sources,1,which.max)]
@@ -129,7 +129,7 @@ cc_sources$rank <- seq.int(nrow(cc_sources))
 cc_ind_ancs_long = melt(cc_sources, id=c("rank", "poprank", "maxprob"), variable.name = "Source", value.name = "Proportion")
 
 # Generate plot
-cc_ind_ancs_plot = ggplot(cc_ind_ancs_long, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + set_fill_colours
+cc_ind_ancs_plot = ggplot(cc_ind_ancs_long, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + set_fill_colours + guides(fill=guide_legend(title="C. coli")) + theme(legend.title = element_text(face = "italic"))
 
 # Plot C. jejuni and C. coli individual ancestry graphs in single figure
 overall_ind_ancs_plot = plot_grid(cj_ind_ancs_plot, cc_ind_ancs_plot, labels=c("A", "B"), nrow = 2, align = "v")
@@ -220,8 +220,7 @@ overall_years = overall_years_table
 overall_years$Year = as.integer(overall_years$Year)
 # Convert data to long form
 overall_years_long = melt(overall_years, id = "Year", variable.name = "Species", value.name = "Count")
-overall_year_counts_plot = ggplot(data=overall_years_long, aes(x = Year, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Year", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("Figure3.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+overall_year_counts_plot = ggplot(data=overall_years_long, aes(x = Year, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Year", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.text = element_text(face = "italic"))
 
 ## Quarterly breakdown ##
 # C. jejuni
@@ -294,21 +293,25 @@ cc_quarters_count = cc_quarters_count[,retain]
 # Plot C. jejuni and C. coli quarterly breakdown in single figure
 quarterly_plot = plot_grid(cj_quarters_plot, cc_quarters_plot, labels=c("A", "B"), nrow = 2, align = "v")
 # Save figure to output directory
-ggsave("Figure6.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+ggsave("Figure5.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 # Generate combined summary table of number of isolates per quarter
 overall_quarters_table = full_join(cj_quarters_count, cc_quarters_count, by = "Quarter")
 colnames(overall_quarters_table) <- c("Year.Quarter", "C. jejuni", "C. coli")
 
-# Plot number of isolates per year
+# Plot number of isolates per quarter
 # Prepare data
 overall_quarters = overall_quarters_table
 # Convert years to numeric for graphing
 overall_quarters$`Year.Quarter` = as.numeric(overall_quarters$`Year.Quarter`)
 # Convert data to long form
 overall_quarters_long = melt(overall_quarters, id = "Year.Quarter", variable.name = "Species", value.name = "Count")
-overall_quarter_counts_plot = ggplot(data=overall_quarters_long, aes(x = `Year.Quarter`, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Time", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
-ggsave("Figure5.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+overall_quarter_counts_plot = ggplot(data=overall_quarters_long, aes(x = `Year.Quarter`, y = Count, group = Species)) + geom_line(aes(linetype=Species)) + labs(x="Quarters over time", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.text = element_text(face = "italic"))
+
+## Isolate counts ##
+# Prepare combined figure for counts per year and per quarter
+overall_counts_combined = plot_grid(overall_year_counts_plot, overall_quarter_counts_plot, labels=c("A", "B"), nrow = 2, align = "v")
+ggsave("Figure3.svg", plot=overall_counts_combined, device="svg", width=210, height=148, units="mm", dpi=300)
 
 ### Report generation ###
 ## Create document and title ##
@@ -324,12 +327,12 @@ doc = addTitle(doc , 'Methods', level=2)
 # Describe datasets #
 doc = addTitle(doc, 'Datasets', level=3)
 doc = addTitle(doc, 'Reference isolates', level=4)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Unless altered by the user, validated reference sets were used.  These datasets were exported from the PubMLST database in July 2017 and remain unchanged.', stylename = 'Normal')
 doc = addTitle(doc, 'Human disease isolates', level=4)
 doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
 # Describe attribution
 doc = addTitle(doc, 'Source attribution', level=3)
-doc = addParagraph(doc, 'Unless altered by the user, isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.  For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.\n\rThe probabilities for attribution to each source are summed as an arithmetic mean across the cases of human infection (e.g. Figure 1), presented for individual isolates (e.g. Figure 2), and summed over time (e.g. Figure 3 onwards).\n\rThe attribution carries the assumption that all isolates came from one of the sources in the analysis.  Isolates from sources not represented will be assigned to sources represented in the reference sets according to their genetic similarity.  The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. If results from a validation study estimating bias are available, results should be considered in the light of that.', stylename = 'Normal')
+doc = addParagraph(doc, 'Isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli, and the parameters described here were used unless altered by the user. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.  For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.\n\rThe probabilities for attribution to each source are summed as an arithmetic mean across the cases of human infection (Figure 1), presented for individual isolates (Figure 2), and summed over time (Figure 4 onwards).\n\rThe attribution carries the assumption that all isolates came from one of the sources in the analysis.  Isolates from sources not represented will be assigned to sources present in the reference sets according to their genetic similarity.  The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. If results from a validation study estimating bias are available, results should be considered in the light of that.', stylename = 'Normal')
 doc <- addPageBreak(doc)
 
 ## Results ##
@@ -352,13 +355,17 @@ doc = addParagraph(doc, sprintf('Figure 2. Source probabilities for individual h
 
 doc <- addPageBreak(doc)
 
+# Counts section
+doc = addTitle(doc, 'Breakdown of isolates of time', level=3)
+doc = addParagraph(doc, 'Tabulated data for the figures in this section are provided in the Appendices.', stylename = 'Normal')
+# Isolate count over years and quarters plot
+doc = addPlot(doc , fun=print, x=overall_counts_combined, width=5, height=6)
+doc = addParagraph(doc, 'Figure 3. Breakdown of isolate counts per year (A), and per year and quarter (B).', stylename='Normal')
+
 # Annual breakdown section
 doc = addTitle(doc, 'Annual breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
-doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
-# Annual isolate count plot
-doc = addPlot(doc , fun=print, x=overall_year_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
-doc = addParagraph(doc, 'Figure 3. Number of C. jejuni and C. coli isolates per year.', stylename='Normal')
+doc = addParagraph(doc, 'Tabulated data for the figures in this section are provided in the Appendices.', stylename = 'Normal')
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot)
@@ -370,13 +377,10 @@ doc <- addPageBreak(doc)
 doc = addTitle(doc, 'Quarterly breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
-# Quarterly isolate count plot
-doc = addPlot(doc , fun=print, x=overall_quarter_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
-doc = addParagraph(doc, 'Figure 5. Number of C. jejuni and C. coli isolates per quarter.', stylename='Normal')
 
 # Quarterly isolate count plot
 doc = addPlot(doc , fun=print, x=quarterly_plot)
-doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s. Bars are ordered from major (bottom) to minor (top) sources to aid visualisation.', no_cj, min_date_cj,max_date_cj, no_cc, min_date_cc, max_date_cc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
