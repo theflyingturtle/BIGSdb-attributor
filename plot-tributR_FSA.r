@@ -92,8 +92,7 @@ cj_anc_sites_long = melt(cj_anc_sites, id="site", variable.name="Source", value.
 cj_sbs_summary = setNames(data.frame(t(cj_anc_sites[,-1])), cj_anc_sites[,1])
 
 # Generate grouped bar graph showing site-by-site proportions
-cj_sbs_overall_plot = ggplot(cj_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sources", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
-    theme(legend.position="bottom", legend.direction = "horizontal")
+cj_sbs_overall_plot = ggplot(cj_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + labs(x="C. jejuni", y="Proportion") + guides(fill=guide_legend(title=NULL)) + theme(legend.position="bottom", legend.direction = "horizontal", axis.text.x = element_text(angle = 45, hjust = 1), axis.title.x = element_text(face="italic"))
 
 # Overall summary
 # Drop sites to get overall proportions
@@ -106,7 +105,7 @@ cj_overall_summary = melt(tapply(cj_ancs_long$value, cj_ancs_long$variable, mean
 cj_overall_summary = cj_overall_summary[order(-cj_overall_summary$Proportion),]
 cj_overall_summary$Source = factor(cj_overall_summary$Source, levels=unique(as.character(cj_overall_summary$Source)))
 # Generate bar graph showing overall proportions
-cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + labs(x="C. jejuni", y="Proportion") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.title.x = element_text(face="italic"))
 
 # Repeat for C. coli
 # Site-by-site summaries
@@ -121,8 +120,7 @@ cc_anc_sites_long = melt(cc_anc_sites, id="site", variable.name="Source", value.
 # Site-by-site summary
 cc_sbs_summary = setNames(data.frame(t(cc_anc_sites[,-1])), cc_anc_sites[,1])
 # Site-by-site plot
-cc_sbs_overall_plot = ggplot(cc_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x="Sources", y="Proportion") + guides(fill=guide_legend(title=NULL)) +
-    theme(legend.position="bottom", legend.direction = "horizontal")
+cc_sbs_overall_plot = ggplot(cc_anc_sites_long, aes(x = reorder(Source, -Proportion), y = Proportion)) + geom_bar(aes(fill = site), stat="identity", position = position_dodge(width=0.8), width = 0.8) + scale_fill_grey() + theme_grey(base_size = 14) + labs(x="C. coli", y="Proportion") + guides(fill=guide_legend(title=NULL)) + theme(legend.position="bottom", legend.direction = "horizontal", axis.text.x = element_text(angle = 45, hjust = 1), axis.title.x = element_text(face="italic"))
 
 # Overall summary
 cc_overall <- cc_sources %>%
@@ -131,7 +129,7 @@ cc_ancs_long = melt(cc_overall)
 cc_overall_summary = melt(tapply(cc_ancs_long$value, cc_ancs_long$variable, mean), varnames="Source", value.name="Proportion")
 cc_overall_summary = cc_overall_summary[order(-cc_overall_summary$Proportion),]
 cc_overall_summary$Source = factor(cc_overall_summary$Source, levels=unique(as.character(cc_overall_summary$Source)))
-cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + ylab("Proportion")
+cc_overall_plot = ggplot(cc_overall_summary) + geom_bar(aes(x=Source, y=Proportion), stat="identity", fill="black") + labs(x="C. coli", y="Proportion") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.title.x = element_text(face="italic"))
 
 # Plot C. jejuni and C. coli graphs on same axis
 # Overall plots
