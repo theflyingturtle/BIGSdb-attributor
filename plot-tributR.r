@@ -332,7 +332,9 @@ doc = addTitle(doc, 'Human disease isolates', level=4)
 doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
 # Describe attribution
 doc = addTitle(doc, 'Source attribution', level=3)
-doc = addParagraph(doc, 'Isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli, and the parameters described here were used unless altered by the user. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.  For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.\n\rThe probabilities for attribution to each source are summed as an arithmetic mean across the cases of human infection (Figure 1), presented for individual isolates (Figure 2), and summed over time (Figure 4 onwards).\n\rThe attribution carries the assumption that all isolates came from one of the sources in the analysis.  Isolates from sources not represented will be assigned to sources present in the reference sets according to their genetic similarity.  The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. If results from a validation study estimating bias are available, results should be considered in the light of that.', stylename = 'Normal')
+doc = addParagraph(doc, 'Isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli, and the parameters described here were used unless altered by the user. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.  For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.', stylename = 'Normal')
+doc = addParagraph(doc, 'The probabilities for attribution to each source are summed as an arithmetic mean across the cases of human infection (Figure 1), presented for individual isolates (Figure 2), and summed over time (Figure 4 onwards).', stylename = 'Normal')
+doc = addParagraph(doc, 'The attribution carries the assumption that all isolates came from one of the sources in the analysis.  Isolates from sources not represented will be assigned to sources present in the reference sets according to their genetic similarity.  The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. If results from a validation study estimating bias are available, results should be considered in the light of that.', stylename = 'Normal')
 doc <- addPageBreak(doc)
 
 ## Results ##
@@ -359,7 +361,7 @@ doc <- addPageBreak(doc)
 doc = addTitle(doc, 'Breakdown of isolates of time', level=3)
 doc = addParagraph(doc, 'Tabulated data for the figures in this section are provided in the Appendices.', stylename = 'Normal')
 # Isolate count over years and quarters plot
-doc = addPlot(doc , fun=print, x=overall_counts_combined, width=5, height=6)
+doc = addPlot(doc , fun=print, x=overall_counts_combined, width=6, height=6)
 doc = addParagraph(doc, 'Figure 3. Breakdown of isolate counts per year (A), and per year and quarter (B).', stylename='Normal')
 
 doc <- addPageBreak(doc)
