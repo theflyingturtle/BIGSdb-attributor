@@ -370,11 +370,11 @@ doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease
 
 # Overall site-by-site plot
 doc = addPlot(doc, fun=print, x=overall_sites_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates from Oxfordshire and Newcastle/North Tyneside attributed to putative sources. Probabilistic assignment of (A) %s and %s C. jejuni collected in Newcastle/North Tyneside and Oxfordshire, respectively, between %s and %s, and (B) %s and %s C. coli collected in Newcastle/North Tyneside and Oxfordshire, respectively, between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates from Newcastle/North Tyneside and Oxfordshire attributed to putative sources. Probabilistic assignment of (A) C. jejuni collected in Newcastle/North Tyneside( n = %s) and Oxfordshire (n = %s) between %s and %s, and (B) C. coli collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 
 # Overall individual ancestries plot
 doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot, width=6.5, height=10)
-doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual human disease isolates. Probabilistic assignment of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire. Isolates are represented as vertical bars coloured according to the estimated probability for each source as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', all_cj_nwc, all_cj_oxc, all_cc_nwc, all_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual human disease isolates. Probabilistic assignment of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), respectively, and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Isolates are represented as vertical bars coloured according to the estimated probability for each source as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', all_cj_nwc, all_cj_oxc, all_cc_nwc, all_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
