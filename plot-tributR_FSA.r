@@ -160,6 +160,42 @@ colnames(sbs_table)[1] <- "Sources"
 # Retrieve sources dataframe
 # Add "poprank" column that indicates the most likely source (in the case of a tie, 'which' will pick the first column)
 cj_sources$poprank = colnames(cj_sources)[apply(cj_sources,1,which.max)]
+# Add "max prob" column giving max value to order on later
+cj_sources[, "maxprob"] = apply(within(cj_sources, rm(site, poprank)), 1, max)
+# Reorder the dataframe from most to least common overall source, first by most likely source, and within each source 
+cj_order = order(cj_sources$site, ordered(cj_sources$poprank, levels=cj_overall_summary$Source), -cj_sources$maxprob)
+cj_sources = cj_sources[cj_order,]
+# Add rank column after ordering to give order to ggplot
+cj_sources = as.data.frame(cj_sources %>% group_by(site) %>% mutate(rank = row_number(site)))
+# Melt data to long form
+cj_sources_long = melt(cj_sources, id=c("site","poprank","maxprob","rank"), variable.name = "Source", value.name = "Proportion")
+
+# Generate individual ancestries plots
+cj_ind_ancs_plot = ggplot(cj_sources_long, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + facet_grid(site ~ .) + set_fill_colours + guides(fill=guide_legend(title="C. jejuni")) + theme(legend.title = element_text(face = "italic"))
+
+# Repeat for C. coli
+cc_sources$poprank = colnames(cc_sources)[apply(cc_sources,1,which.max)]
+cc_sources[, "maxprob"] = apply(within(cc_sources, rm(site, poprank)), 1, max)
+cc_order = order(cc_sources$site, ordered(cc_sources$poprank, levels=cc_overall_summary$Source), -cc_sources$maxprob)
+cc_sources = cc_sources[cc_order,]
+cc_sources = as.data.frame(cc_sources %>% group_by(site) %>% mutate(rank = row_number(site)))
+cc_sources_long = melt(cc_sources, id=c("site","poprank","maxprob","rank"), variable.name = "Source", value.name = "Proportion")
+
+# Generate individual ancestries plots
+cc_ind_ancs_plot = ggplot(cc_sources_long, aes(x=rank, y=Proportion, fill=Source, width=1)) + geom_bar(stat="identity") + labs(x="Human disease isolates", y="Source probability") + facet_grid(site ~ .) + set_fill_colours + guides(fill=guide_legend(title="C. coli")) + theme(legend.title = element_text(face = "italic"))
+
+# Plot C. jejuni and C. coli individual ancestry graphs in single figure
+overall_ind_ancs_plot = plot_grid(cj_ind_ancs_plot, cc_ind_ancs_plot, labels = c("A", "B"), ncol = 1)
+# Save figure to output directory
+ggsave("Figure3.svg", plot=overall_ind_ancs_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+
+
+
+# Generate individual ancestries plots
+# C. jejuni
+# Retrieve sources dataframe
+# Add "poprank" column that indicates the most likely source (in the case of a tie, 'which' will pick the first column)
+cj_sources$poprank = colnames(cj_sources)[apply(cj_sources,1,which.max)]
 # Separate data into Oxfordshire and Newcastle
 cj_sources_oxc = cj_sources[cj_sources$site == 'Oxfordshire',]
 cj_sources_nwc = cj_sources[cj_sources$site == 'Newcastle',]
