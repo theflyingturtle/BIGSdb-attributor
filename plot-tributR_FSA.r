@@ -412,6 +412,17 @@ doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease
 
 doc <- addPageBreak(doc)
 
+# Quarterly breakdown section
+doc = addTitle(doc, 'Quarterly breakdown', level=3)
+doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
+
+# Quarterly attribution plot
+doc = addPlot(doc , fun=print, x=quarterly_plot, width=8, height=10)
+doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s).  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+
+doc <- addPageBreak(doc)
+
 ## Appendices ##
 doc = addTitle(doc, 'Appendices', level=2)
 # Overall summary
