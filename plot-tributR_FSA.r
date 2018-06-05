@@ -288,6 +288,63 @@ cc_years_count_report <- as.data.frame(cc_years_count) %>%
 cc_years_count_report = dcast(cc_years_count_report, Year ~ Site, value.var="Count")
 overall_years_count_table = merge(cj_years_count_report, cc_years_count_report, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
 
+## Quarterly breakdown ##
+# C. jejuni
+# Add quarters column to date-complete dataset
+cj_quarters = cj
+cj_quarters$Quarter = as.yearqtr(cj_quarters$date, format = "%Y-%m-%d")
+# Coerce quarter into graphable format
+cj_quarters$Quarter = format(cj_quarters$Quarter, format = "%Y.%q")
+# Drop unnecessary columns
+cj_quarters <- cj_quarters %>%
+    select(-matches('id')) %>%
+    select(-matches('species')) %>%
+    select(-matches('date'))
+# Get mean by quarter over time
+cj_quarters_mean = cj_quarters %>%
+    group_by(site, Quarter) %>%
+    dplyr::summarize_all(funs(mean))
+# Convert to long form and force quarter to be read as numeric
+cj_quarters_mean_long = melt(cj_quarters_mean, id = c("site", "Quarter"), variable.name = "Source", value.name = "Proportion")
+cj_quarters_mean_long$Quarter = as.numeric(cj_quarters_mean_long$Quarter)
+
+# Re-order
+cj_quarters_order = order(ordered(cj_quarters_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
+cj_quarters_mean_long = cj_quarters_mean_long[cj_quarters_order,]
+cj_quarters_mean_long$Source = factor(cj_quarters_mean_long$Source, levels=unique(as.character(cj_quarters_mean_long$Source)))
+
+# Generate area plot
+cj_quarters_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (Years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. jejuni")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
+
+# Repeat for C. coli
+cc_quarters = cc
+cc_quarters$Quarter = as.yearqtr(cc_quarters$date, format = "%Y-%m-%d")
+cc_quarters$Quarter = format(cc_quarters$Quarter, format = "%Y.%q")
+cc_quarters <- cc_quarters %>%
+    select(-matches('id')) %>%
+    select(-matches('species')) %>%
+    select(-matches('date'))
+cc_quarters_mean = cc_quarters %>%
+    group_by(site, Quarter) %>%
+    dplyr::summarize_all(funs(mean))
+cc_quarters_mean_long = melt(cc_quarters_mean, id = c("site", "Quarter"), variable.name = "Source", value.name = "Proportion")
+cc_quarters_mean_long$Quarter = as.numeric(cc_quarters_mean_long$Quarter)
+cc_quarters_order = order(ordered(cc_quarters_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
+cc_quarters_mean_long = cc_quarters_mean_long[cc_quarters_order,]
+cc_quarters_mean_long$Source = factor(cc_quarters_mean_long$Source, levels=unique(as.character(cc_quarters_mean_long$Source)))
+
+# Generate area plot
+cc_quarters_plot = ggplot(cc_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (Years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. coli")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
+
+# Plot C. jejuni and C. coli quarterly breakdowns in single figure
+quarterly_plot = plot_grid(cj_quarters_plot, cc_quarters_plot, labels=c("A", "B"), nrow = 2, align = "v")
+# Save figure to output directory
+ggsave("Figure6.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+
+
+
+
+
 
 ### Report generation ###
 ## Create document and title ##
