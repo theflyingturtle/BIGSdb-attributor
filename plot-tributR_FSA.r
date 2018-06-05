@@ -200,49 +200,43 @@ cj_years <- cj_years %>%
     select(-matches('species'))%>%
     select(-matches('date'))
 # Get averages by year
-cj_years = cj_years %>%
+cj_years_mean = cj_years %>%
     group_by(site, Year) %>%
     dplyr::summarize_all(funs(mean))
 # Melt data to long form
-cj_years_long = melt(cj_years, id=c("site","Year"), variable.name = "Source", value.name = "Proportion")
+cj_years_mean_long = melt(cj_years_mean, id=c("site","Year"), variable.name = "Source", value.name = "Proportion")
 
 # Re-order the dataframe so that bars will be stacked from major (bottom) to minor (top) sources
 cj_years_order = order(ordered(cj_years_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
-cj_years_long = cj_years_long[cj_years_order,]
-cj_years_long$Source = factor(cj_years_long$Source, levels=unique(as.character(cj_years_long$Source)))
+cj_years_mean_long = cj_years_mean_long[cj_years_order,]
+cj_years_mean_long$Source = factor(cj_years_mean_long$Source, levels=unique(as.character(cj_years_mean_long$Source)))
 # Force Year to be numeric so that graph will plot
-cj_years_long$Year = as.numeric(cj_years_long$Year)
+cj_years_mean_long$Year = as.numeric(cj_years_mean_long$Year)
 
 # Generate area plot and manipulate x-axis to display years correctly
-cj_years_plot = ggplot(cj_years_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_long$Year)), labels=c(as.character(unique(cj_years_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + facet_grid(site ~ .) 
+cj_years_plot = ggplot(cj_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cj_years_mean_long$Year)), labels=c(as.character(unique(cj_years_mean_long$Year)))) + labs(x="Time (years)", y="Proportion of isolates") + set_fill_colours + guides(fill=guide_legend(title="C. jejuni")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .) 
 
 # Repeat for C. coli
 cc_years = cc
 cc_years$Year = format(cc_years$date,format="%Y")
-# Drop unnecessary columns
 cc_years <- cc_years %>%
     select(-matches('id')) %>%
     select(-matches('species'))%>%
     select(-matches('date'))
-# Get averages by year
-cc_years = cc_years %>%
+cc_years_mean = cc_years %>%
     group_by(site, Year) %>%
     dplyr::summarize_all(funs(mean))
-# Melt data to long form
-cc_years_long = melt(cc_years, id=c("site","Year"), variable.name = "Source", value.name = "Proportion")
-
-# Re-order the dataframe so that bars will be stacked from major (bottom) to minor (top) sources
-cc_years_order = order(ordered(cc_years_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
-cc_years_long = cc_years_long[cc_years_order,]
-cc_years_long$Source = factor(cc_years_long$Source, levels=unique(as.character(cc_years_long$Source)))
-# Force Year to be numeric so that graph will plot
-cc_years_long$Year = as.numeric(cc_years_long$Year)
+cc_years_mean_long = melt(cc_years_mean, id=c("site","Year"), variable.name = "Source", value.name = "Proportion")
+cc_years_order = order(ordered(cc_years_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
+cc_years_mean_long = cc_years_mean_long[cc_years_order,]
+cc_years_mean_long$Source = factor(cc_years_mean_long$Source, levels=unique(as.character(cc_years_mean_long$Source)))
+cc_years_mean_long$Year = as.numeric(cc_years_mean_long$Year)
 
 # Generate area plot and manipulate x-axis to display years correctly
-cc_years_plot = ggplot(cc_years_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_long$Year)), labels=c(as.character(unique(cc_years_long$Year)))) + labs(x="Year", y="Proportion of isolates") + set_fill_colours + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + facet_grid(site ~ .) 
+cc_years_plot = ggplot(cc_years_mean_long, aes(x=Year, y=Proportion, fill=Source)) + geom_area() + scale_x_continuous(breaks=as.numeric(unique(cc_years_mean_long$Year)), labels=c(as.character(unique(cc_years_mean_long$Year)))) + labs(x="Time (years)", y="Proportion of isolates") + set_fill_colours + guides(fill=guide_legend(title="C. coli")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
 
 # Plot C. jejuni and C. coli annual breakdown in single figure
-yearly_plot = plot_grid(cj_years_nwc_plot, cj_years_oxc_plot, cc_years_nwc_plot, cc_years_oxc_plot,  labels=c("A", "B", "C", "D"), ncol = 1)
+yearly_plot = plot_grid(cj_years_plot, cc_years_plot,  labels=c("A", "B"), ncol = 1)
 # Save figure to output directory
 ggsave("Figure5.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
@@ -252,45 +246,25 @@ cc_years_mean = merge(cc_years_nwc_mean, cc_years_oxc_mean, by.x="Year", by.y="Y
 
 # Generate counts per year
 # Count C. jejuni isolates per year
-retain = c("Year","Count")
-cj_years_oxc_count = aggregate(.~Year, cj_years_oxc, FUN= length)
-colnames(cj_years_oxc_count)[2] <- "Count"
-cj_years_oxc_count = cj_years_oxc_count[,retain]
-cj_years_nwc_count = aggregate(.~Year, cj_years_nwc, FUN= length)
-colnames(cj_years_nwc_count)[2] <- "Count"
-cj_years_nwc_count = cj_years_nwc_count[,retain]
-# Repeat for C. coli
-cc_years_oxc_count = aggregate(.~Year, cc_years_oxc, FUN= length)
-colnames(cc_years_oxc_count)[2] <- "Count"
-cc_years_oxc_count = cc_years_oxc_count[,retain]
-cc_years_nwc_count = aggregate(.~Year, cc_years_nwc, FUN= length)
-colnames(cc_years_nwc_count)[2] <- "Count"
-cc_years_nwc_count = cc_years_nwc_count[,retain]
-
-# Merge counts for C. jejuni and reformat for plotting
-cj_years_count = merge(cj_years_nwc_count, cj_years_oxc_count, by.x="Year", by.y="Year", all=TRUE, suffixes = c(".NWC", ".OXC"))
+cj_years_count = cj_years %>%
+    group_by(site, Year) %>%
+    summarise(total.count=n())
+# Add species column and rename columns
 cj_years_count$Species = "C. jejuni"
-colnames(cj_years_count) <- c("Year", "Newcastle", "Oxfordshire", "Species")
-cj_years_count_long = melt(cj_years_count, id=c("Year", "Species"), variable.name = "Site", value.name = "Count")
+colnames(cj_years_count) <- c("Site", "Year", "Count", "Species")
 # Repeat for C. coli
-cc_years_count = merge(cc_years_nwc_count, cc_years_oxc_count, by.x="Year", by.y="Year", all=TRUE, suffixes = c(".NWC", ".OXC"))
+cc_years_count = cc_years %>%
+    group_by(site, Year) %>%
+    summarise(total.count=n())
 cc_years_count$Species = "C. coli"
-colnames(cc_years_count) <- c("Year", "Newcastle", "Oxfordshire", "Species")
-cc_years_count_long = melt(cc_years_count, id=c("Year", "Species"), variable.name = "Site", value.name = "Count")
-
-# Generate combined table for reporting
-cj_years_count_report <- cj_years_count %>%
-	select(-matches('Species'))
-cc_years_count_report <- cc_years_count %>%
-	select(-matches('Species'))
-overall_years_table = merge(cj_years_count_report, cc_years_count_report, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
-
+colnames(cc_years_count) <- c("Site", "Year", "Count", "Species")
 # Join C .jejuni and C. coli annual counts for plotting
-overall_year_counts = union(cj_years_count_long, cc_years_count_long)
+overall_year_counts = union(cj_years_count, cc_years_count)
 # Convert years to integers for graphing
 overall_year_counts$Year = as.integer(overall_year_counts$Year)
-# Generate plot
-overall_year_counts_plot = ggplot(data=overall_year_counts, aes(x = Year, y = Count)) + geom_line(aes(linetype=Species, color=Site)) + labs(x="Year", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Generate annual counts plot
+overall_year_counts_plot = ggplot(data=overall_year_counts, aes(x = Year, y = Count)) + geom_bar(position= "dodge", stat = "identity", fill = "black") + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ Site, scales = "free")
 # Save plot
 ggsave("Figure4.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
@@ -357,7 +331,7 @@ doc = addParagraph(doc, 'Figure 4. Number of C. jejuni and C. coli isolates per 
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot, width=8, height=10)
-doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A, B) %s and %s C. jejuni isolates from Newcastle/North Tyneside and Oxfordshire, and (C, D) %s and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire.  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s).  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
