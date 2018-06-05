@@ -77,10 +77,8 @@ min_date_cc = format(min(as.Date(cc$date, format="%d/%m/%Y")), "%B %Y")
 # Site-by-site summaries
 # Get only source columns for overall summaries
 cj_sources <- ancs_cj %>%
-	select(-matches('id'))
-cj_sources <- cj_sources %>%
-	select(-matches('date'))
-cj_sources <- cj_sources %>%
+	select(-matches('id')) %>%
+	select(-matches('date')) %>%
 	select(-matches('species'))
 # Get proportions for each source, site by site and convert to long form
 cj_anc_sites = (aggregate(.~site, cj_sources, mean))
@@ -111,10 +109,8 @@ cj_overall_plot = ggplot(cj_overall_summary) + geom_bar(aes(x=Source, y=Proporti
 # Repeat for C. coli
 # Site-by-site summaries
 cc_sources <- ancs_cc %>%
-	select(-matches('id'))
-cc_sources <- cc_sources %>%
-	select(-matches('date'))
-cc_sources <- cc_sources %>%
+	select(-matches('id')) %>%
+	select(-matches('date')) %>%
 	select(-matches('species'))
 cc_anc_sites = (aggregate(.~site, cc_sources, mean))
 cc_anc_sites_long = melt(cc_anc_sites, id="site", variable.name="Source", value.name="Proportion")
@@ -208,7 +204,7 @@ cj_years_mean = cj_years %>%
 cj_years_mean_long = melt(cj_years_mean, id=c("site","Year"), variable.name = "Source", value.name = "Proportion")
 
 # Re-order the dataframe so that bars will be stacked from major (bottom) to minor (top) sources
-cj_years_order = order(ordered(cj_years_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
+cj_years_order = order(ordered(cj_years_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
 cj_years_mean_long = cj_years_mean_long[cj_years_order,]
 cj_years_mean_long$Source = factor(cj_years_mean_long$Source, levels=unique(as.character(cj_years_mean_long$Source)))
 # Force Year to be numeric so that graph will plot
@@ -275,9 +271,7 @@ overall_years_count = union(cj_years_count, cc_years_count)
 overall_years_count$Year = as.integer(overall_years_count$Year)
 
 # Generate annual counts plot
-overall_years_counts_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count)) + geom_bar(position= "dodge", stat = "identity", fill = "black") + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ Site, scales = "free")
-# Save plot
-ggsave("Figure4.svg", plot=overall_years_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+overall_years_count_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
 
 # Generate combined table for reporting
 cj_years_count_report <- as.data.frame(cj_years_count) %>%
@@ -304,9 +298,8 @@ cj_quarters <- cj_quarters %>%
 cj_quarters_mean = cj_quarters %>%
     group_by(site, Quarter) %>%
     dplyr::summarize_all(funs(mean))
-# Convert to long form and force quarter to be read as numeric
+# Convert to long form
 cj_quarters_mean_long = melt(cj_quarters_mean, id = c("site", "Quarter"), variable.name = "Source", value.name = "Proportion")
-cj_quarters_mean_long$Quarter = as.numeric(cj_quarters_mean_long$Quarter)
 
 # Re-order
 cj_quarters_order = order(ordered(cj_quarters_mean_long$Source, levels=cj_overall_summary$Source), decreasing = TRUE)
@@ -314,7 +307,7 @@ cj_quarters_mean_long = cj_quarters_mean_long[cj_quarters_order,]
 cj_quarters_mean_long$Source = factor(cj_quarters_mean_long$Source, levels=unique(as.character(cj_quarters_mean_long$Source)))
 
 # Generate area plot
-cj_quarters_plot = ggplot(cj_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (Years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. jejuni")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
+cj_quarters_plot = ggplot(cj_quarters_mean_long, aes(x=as.numeric(Quarter), y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. jejuni")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
 
 # Repeat for C. coli
 cc_quarters = cc
@@ -328,21 +321,57 @@ cc_quarters_mean = cc_quarters %>%
     group_by(site, Quarter) %>%
     dplyr::summarize_all(funs(mean))
 cc_quarters_mean_long = melt(cc_quarters_mean, id = c("site", "Quarter"), variable.name = "Source", value.name = "Proportion")
-cc_quarters_mean_long$Quarter = as.numeric(cc_quarters_mean_long$Quarter)
 cc_quarters_order = order(ordered(cc_quarters_mean_long$Source, levels=cc_overall_summary$Source), decreasing = TRUE)
 cc_quarters_mean_long = cc_quarters_mean_long[cc_quarters_order,]
 cc_quarters_mean_long$Source = factor(cc_quarters_mean_long$Source, levels=unique(as.character(cc_quarters_mean_long$Source)))
 
 # Generate area plot
-cc_quarters_plot = ggplot(cc_quarters_mean_long, aes(x=Quarter, y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (Years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. coli")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
+cc_quarters_plot = ggplot(cc_quarters_mean_long, aes(x=as.numeric(Quarter), y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. coli")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
 
 # Plot C. jejuni and C. coli quarterly breakdowns in single figure
 quarterly_plot = plot_grid(cj_quarters_plot, cc_quarters_plot, labels=c("A", "B"), nrow = 2, align = "v")
 # Save figure to output directory
-ggsave("Figure6.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+ggsave("Figure6.svg", plot=quarterly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
+# Generate summary tables of quarterly attribution
+# C. jejuni
+# Reshape the long form table
+cj_quarters_mean_table = dcast(setDT(cj_quarters_mean), Quarter ~ site, value.var=c(as.character(unique(cj_overall_summary$Source))))
+# Shorten the suffixes for ease of reading
+names(cj_quarters_mean_table) = gsub(x = names(cj_quarters_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
+names(cj_quarters_mean_table) = gsub(x = names(cj_quarters_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
 
+# Repeat for C. coli
+cc_quarters_mean_table = dcast(setDT(cc_quarters_mean), Quarter ~ site, value.var=c(as.character(unique(cc_overall_summary$Source))))
+names(cc_quarters_mean_table) = gsub(x = names(cc_quarters_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
+names(cc_quarters_mean_table) = gsub(x = names(cc_quarters_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
 
+# Generate counts per quarter
+# Count C. jejuni isolates per quarter
+cj_quarters_count = cj_quarters %>%
+    group_by(site, Quarter) %>%
+    summarise(total.count=n())
+# Add species column and rename columns
+cj_quarters_count$Species = "C. jejuni"
+colnames(cj_quarters_count) <- c("Site", "Quarter", "Count", "Species")
+
+# Repeat for C. coli
+cc_quarters_count = cc_quarters %>%
+    group_by(site, Quarter) %>%
+    summarise(total.count=n())
+cc_quarters_count$Species = "C. coli"
+colnames(cc_quarters_count) <- c("Site", "Quarter", "Count", "Species")
+
+# Join C .jejuni and C. coli quarterly counts for plotting
+overall_quarters_count = union(cj_quarters_count, cc_quarters_count)
+
+# Generate quarterly counts plot
+overall_quarters_count_plot = ggplot(data=overall_quarters_count, aes(x = Quarter, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + labs(x="Time (years and calendar quarters)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
+
+# Create combined figure for counts per year and per quarter
+overall_counts_combined = plot_grid(overall_years_count_plot, overall_quarters_count_plot, labels=c("A", "B"), nrow = 2, align = "v")
+# Save plot
+ggsave("Figure4.svg", plot=overall_counts_combined, device="svg", width=210, height=148, units="mm", dpi=300)
 
 
 
@@ -397,14 +426,19 @@ doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual h
 
 doc <- addPageBreak(doc)
 
+# Counts section
+doc = addTitle(doc, 'Breakdown of isolates over time', level=3)
+doc = addParagraph(doc, 'Tabulated data for the figures in this section are provided in the Appendices.', stylename = 'Normal')
+# Isolate count over years and quarters plot
+doc = addPlot(doc , fun=print, x=overall_counts_combined, width=6, height=6)
+doc = addParagraph(doc, 'Figure 4. Breakdown of isolate counts per year (A), and per year and quarter (B).', stylename='Normal')
+
+doc <- addPageBreak(doc)
+
 # Annual breakdown section
 doc = addTitle(doc, 'Annual breakdown', level=3)
 doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
-
-# Annual isolate count plot
-doc = addPlot(doc , fun=print, x=overall_year_counts_plot, width=5, height=3, par.properties = parProperties(text.align = "left"))
-doc = addParagraph(doc, 'Figure 4. Number of C. jejuni and C. coli isolates per year.', stylename='Normal')
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot, width=8, height=10)
