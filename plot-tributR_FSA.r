@@ -5,6 +5,7 @@ library(ggplot2)
 library(cowplot)
 library(RColorBrewer)
 library(zoo)
+library(data.table)
 
 #TODO: In py script head id column in ancs output; add date column (filling as per usual); must manually add species?
 
@@ -241,8 +242,18 @@ yearly_plot = plot_grid(cj_years_plot, cc_years_plot,  labels=c("A", "B"), ncol 
 ggsave("Figure5.svg", plot=yearly_plot, device="svg", width=210, height=148, units="mm", dpi=300)
 
 # Generate combined summary tables of yearly attribution
-cj_years_mean = merge(cj_years_nwc_mean, cj_years_oxc_mean, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (NWC)", " (OXC)"))
-cc_years_mean = merge(cc_years_nwc_mean, cc_years_oxc_mean, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (NWC)", " (OXC)"))
+# C. jejuni
+# Reshape the long form table
+cj_years_mean_table = dcast(setDT(cj_years_mean), Year ~ site, value.var=c(as.character(unique(cj_overall_summary$Source))))
+# Shorten the suffixes for ease of reading
+names(cj_years_mean_table) = gsub(x = names(cj_years_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
+names(cj_years_mean_table) = gsub(x = names(cj_years_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
+
+# Repeat for C. coli
+cc_years_mean_table = dcast(setDT(cc_years_mean), Year ~ site, value.var=c(as.character(unique(cc_overall_summary$Source))))
+# Shorten the suffixes for ease of reading
+names(cc_years_mean_table) = gsub(x = names(cc_years_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
+names(cc_years_mean_table) = gsub(x = names(cc_years_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
 
 # Generate counts per year
 # Count C. jejuni isolates per year
@@ -259,14 +270,23 @@ cc_years_count = cc_years %>%
 cc_years_count$Species = "C. coli"
 colnames(cc_years_count) <- c("Site", "Year", "Count", "Species")
 # Join C .jejuni and C. coli annual counts for plotting
-overall_year_counts = union(cj_years_count, cc_years_count)
+overall_years_count = union(cj_years_count, cc_years_count)
 # Convert years to integers for graphing
-overall_year_counts$Year = as.integer(overall_year_counts$Year)
+overall_years_count$Year = as.integer(overall_years_count$Year)
 
 # Generate annual counts plot
-overall_year_counts_plot = ggplot(data=overall_year_counts, aes(x = Year, y = Count)) + geom_bar(position= "dodge", stat = "identity", fill = "black") + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ Site, scales = "free")
+overall_years_counts_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count)) + geom_bar(position= "dodge", stat = "identity", fill = "black") + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ Site, scales = "free")
 # Save plot
-ggsave("Figure4.svg", plot=overall_year_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+ggsave("Figure4.svg", plot=overall_years_counts_plot, device="svg", width=210, height=148, units="mm", dpi=300)
+
+# Generate combined table for reporting
+cj_years_count_report <- as.data.frame(cj_years_count) %>%
+	select(-matches('Species'))
+cj_years_count_report = dcast(cj_years_count_report, Year ~ Site, value.var="Count")
+cc_years_count_report <- as.data.frame(cc_years_count) %>%
+	select(-matches('Species'))
+cc_years_count_report = dcast(cc_years_count_report, Year ~ Site, value.var="Count")
+overall_years_count_table = merge(cj_years_count_report, cc_years_count_report, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
 
 
 ### Report generation ###
@@ -354,7 +374,7 @@ doc <- addPageBreak(doc)
 doc = addTitle(doc, 'Annual breakdown', level=3)
 # Breakdown of number of isolates per year
 doc = addParagraph(doc, 'Table A3. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates per year', stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(overall_years_table))
+doc = addFlexTable(doc, vanilla.table(overall_years_count_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
 # Breakdown of attribution per year
@@ -363,14 +383,14 @@ doc = addParagraph(doc, '\r\n', stylename=)
 cj_years_mean[,-1] = signif(cj_years_mean[,-1], 3)
 # Display table
 doc = addParagraph(doc, sprintf('Table A4. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(cj_years_mean))
+doc = addFlexTable(doc, vanilla.table(cj_years_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 # C. coli
 # Get significant figures
 cc_years_mean[,-1] = signif(cc_years_mean[,-1], 3)
 # Display table
 doc = addParagraph(doc, sprintf('Table A5. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(cc_years_mean))
+doc = addFlexTable(doc, vanilla.table(cc_years_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
 writeDoc(doc, "FSA_Report_Skeleton.docx")
