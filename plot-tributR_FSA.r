@@ -403,28 +403,22 @@ doc = addTitle(doc , 'FSA-101013: Source attribution of campylobacteriosis isola
 doc = addTitle(doc, 'Introduction', level=2)
 doc = addParagraph(doc, 'This is an automated report summarizing the population genetic assignment of Campylobacter isolates from cases of human disease collected in Newcastle/North Tyneside and Oxfordshire, UK.  Isolates were assigned to putative sources based on population genetic analysis using Structure or iSource software as selected by the user. The reporting system was developed using funding from the Food Standards Agency (FS101013) and the NIHR Health Protection Research Unit in Gastrointestinal Infections.', stylename = 'Normal')
 
-## Methods ##
 doc = addTitle(doc , 'Methods', level=2)
 # Describe datasets #
 doc = addTitle(doc, 'Datasets', level=3)
 doc = addTitle(doc, 'Reference isolates', level=4)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Attribution analyses were carried out using C. jejuni and C. coli reference sets validated in 2017.  These datasets were exported from the PubMLST database in July 2017 and remain unchanged.', stylename = 'Normal')
 doc = addTitle(doc, 'Human disease isolates', level=4)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
-# Describe attribution
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from all date-based analyses presented in this report. Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwx_missing_dates, cj_oxc_missing_dates, cc_nwx_missing_dates, cc_oxc_missing_dates, stylename = 'Normal')
+# Describe attribution #
 doc = addTitle(doc, 'Source attribution', level=3)
-doc = addParagraph(doc, 'Add your description here.', stylename = 'Normal')
-# Previous descriptions used in FSA reports:
-# STRUCTURE. Human disease isolates were assigned to putative host sources using the no-admixture model in STRUCTURE, based on analysis of MLST data.  STRUCTURE was run separately for C. coli and C. jejuni. The program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.
-# iSOURCE. Human disease isolates were assigned to putative host sources using the Asymmetric Island model implemented in iSource, based on analysis of MLST data.  The algorithm was run separately for C. coli and C. jejuni. The program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.
+doc = addParagraph(doc, 'Isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.  For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.', stylename = 'Normal')
+doc = addParagraph(doc, 'The probabilities for attribution to each source are summed as an arithmetic mean across the cases of human infection (Figures 1 and 2), presented for individual isolates (Figure 3), and summed over time (Figure 5 onwards).', stylename = 'Normal')
+doc = addParagraph(doc, 'The attribution carries the assumption that all isolates came from one of the sources in the analysis. Isolates from sources not represented will be assigned to sources present in the reference sets according to their genetic similarity. The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. Results should be considered in the light of the results of the reference set validation study.', stylename = 'Normal')
 doc <- addPageBreak(doc)
 
 ## Results ##
 doc = addTitle(doc, 'Results', level=2)
-
-# Data cleaning
-doc = addTitle(doc, 'Post-attribution data cleaning', level=3)
-doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from date-based analyses presented below.  Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwx_missing_dates, cj_oxc_missing_dates, cc_nwx_missing_dates, cc_oxc_missing_dates), stylename='Normal')
 
 # Overall summary
 doc = addTitle(doc, 'Overall summary', level=3)
