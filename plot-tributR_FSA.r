@@ -493,7 +493,7 @@ doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease
 doc <- addPageBreak(doc)
 
 
-##### APPENDICES #####
+##### REFERENCES #####
 doc = addTitle(doc, 'References', level=2)
 
 doc <- addPageBreak(doc)
@@ -526,14 +526,17 @@ doc = addParagraph(doc, '\r\n', stylename=)
 # Breakdown of attribution per year
 # C. jejuni
 # Get significant figures
-cj_years_mean_table %>% mutate_if(is.numeric, funs(signif(., 3)))
+cj_years_mean_table <- cj_years_mean_table %>%
+	mutate_if(is.numeric, funs(signif(., 3)))
 # Display table
 doc = addParagraph(doc, sprintf('Table A4. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_years_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
+
 # C. coli
 # Get significant figures
-cc_years_mean_table %>% mutate_if(is.numeric, funs(signif(., 3)))
+cc_years_mean_table <- cc_years_mean_table %>%
+	mutate_if(is.numeric, funs(signif(., 3)))
 # Display table
 doc = addParagraph(doc, sprintf('Table A5. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_years_mean_table))
@@ -551,14 +554,16 @@ doc = addParagraph(doc, '\r\n', stylename=)
 # Breakdown of attribution per quarter
 # C. jejuni
 # Get significant figures
-cj_quarters_mean_table %>% mutate_if(is.numeric, funs(signif(., 3)))
+cj_quarters_mean_table <- cj_quarters_mean_table %>%
+	mutate_if(is.numeric, funs(signif(., 3)))
 # Display table
 doc = addParagraph(doc, sprintf('Table A7. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per quarter between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_quarters_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 # C. coli
 # Get significant figures
-cc_quarters_mean_table %>% mutate_if(is.numeric, funs(signif(., 3)))
+cc_quarters_mean_table <- cc_quarters_mean_table %>%
+	mutate_if(is.numeric, funs(signif(., 3)))
 # Display table
 doc = addParagraph(doc, sprintf('Table A8. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per quarter between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_quarters_mean_table))
