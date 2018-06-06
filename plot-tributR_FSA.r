@@ -385,7 +385,7 @@ colnames(cc_quarters_count) <- c("Site", "Quarter", "Count", "Species")
 overall_quarters_count = union(cj_quarters_count, cc_quarters_count)
 
 # Generate quarterly counts plot
-overall_quarters_count_plot = ggplot(data=overall_quarters_count, aes(x = Quarter, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + labs(x="Time (years and calendar quarters)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
+overall_quarters_count_plot = ggplot(data=overall_quarters_count, aes(x = make_date(as.numeric(Quarter)), y = Count, group = Site)) + geom_line(aes(linetype=Site)) + labs(x="Time (years and calendar quarters)", y="Number of isolates") + scale_x_date(breaks=date_breaks("3 months"), expand=c(0,0), labels=format_quarters) + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
 
 # Create combined figure for counts per year and per quarter
 overall_counts_combined = plot_grid(overall_years_count_plot, overall_quarters_count_plot, labels=c("A", "B"), nrow = 2, align = "v")
