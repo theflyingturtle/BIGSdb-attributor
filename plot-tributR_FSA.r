@@ -401,7 +401,7 @@ doc = addTitle(doc , 'FSA-101013: Source attribution of campylobacteriosis isola
 
 ## Introduction ##
 doc = addTitle(doc, 'Introduction', level=2)
-doc = addParagraph(doc, 'Add your text here.', stylename = 'Normal')
+doc = addParagraph(doc, 'This is an automated report summarizing the population genetic assignment of Campylobacter isolates from cases of human disease collected in Newcastle/North Tyneside and Oxfordshire, UK.  Isolates were assigned to putative sources based on population genetic analysis using Structure or iSource software as selected by the user. The reporting system was developed using funding from the Food Standards Agency (FS101013) and the NIHR Health Protection Research Unit in Gastrointestinal Infections.', stylename = 'Normal')
 
 ## Methods ##
 doc = addTitle(doc , 'Methods', level=2)
