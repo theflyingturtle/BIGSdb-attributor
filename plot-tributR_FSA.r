@@ -272,7 +272,7 @@ overall_years_count = union(cj_years_count, cc_years_count)
 overall_years_count$Year = as.integer(overall_years_count$Year)
 
 # Generate annual counts plot
-overall_years_count_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
+overall_years_count_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + scale_x_continuous(breaks=as.numeric(unique(overall_year_counts$Year)), labels=c(as.character(unique(overall_years_count$Year))), expand=c(0,0)) + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
 
 # Generate combined table for reporting
 cj_years_count_report <- as.data.frame(cj_years_count) %>%
@@ -449,7 +449,7 @@ doc <- addPageBreak(doc)
 doc = addTitle(doc, 'Breakdown of isolates over time', level=3)
 doc = addParagraph(doc, 'Tabulated data for the figures in this section are provided in the Appendices.', stylename = 'Normal')
 # Isolate count over years and quarters plot
-doc = addPlot(doc , fun=print, x=overall_counts_combined, width=6.5, height=6)
+doc = addPlot(doc , fun=print, x=overall_counts_combined, width=6.5, height=7)
 doc = addParagraph(doc, 'Figure 4. Breakdown of isolate counts per year (A), and per year and quarter (B).', stylename='Normal')
 
 doc <- addPageBreak(doc)
@@ -471,7 +471,7 @@ doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
 
 # Quarterly attribution plot
-doc = addPlot(doc , fun=print, x=quarterly_plot, width=6.5, height=6.5)
+doc = addPlot(doc , fun=print, x=quarterly_plot, width=6.5, height=7.5)
 doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s).  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
