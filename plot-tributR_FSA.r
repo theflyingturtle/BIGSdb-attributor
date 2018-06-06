@@ -6,6 +6,7 @@ library(cowplot)
 library(RColorBrewer)
 library(zoo)
 library(data.table)
+library(scales)
 
 #TODO: In py script head id column in ancs output; add date column (filling as per usual); must manually add species?
 
@@ -283,6 +284,24 @@ cc_years_count_report = dcast(cc_years_count_report, Year ~ Site, value.var="Cou
 overall_years_count_table = merge(cj_years_count_report, cc_years_count_report, by.x="Year", by.y="Year", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
 
 ## Quarterly breakdown ##
+# Define functions for plotting quarterly data
+# Code adapted from https://stackoverflow.com/questions/31198144/formatting-a-scale-x-continuous-axis-with-quarterly-data
+# Convert quarter to uniform date
+make_date <- function(x) {
+  year <- floor(x)
+  x <- year + (x - year)/0.4 - 0.125
+  as.Date(as.yearqtr(x))
+}
+# Set up formatting for x-axis labels
+format_quarters <- function(x) {
+  x <- as.yearqtr(x)
+  year <- as.integer(x)
+  quart <- as.integer(format(x, "%q"))
+
+  paste(c("Jan-Mar","Apr-Jun","Jul-Sep","Oct-Dec")[quart], 
+        year)
+}
+
 # C. jejuni
 # Add quarters column to date-complete dataset
 cj_quarters = cj
@@ -307,7 +326,7 @@ cj_quarters_mean_long = cj_quarters_mean_long[cj_quarters_order,]
 cj_quarters_mean_long$Source = factor(cj_quarters_mean_long$Source, levels=unique(as.character(cj_quarters_mean_long$Source)))
 
 # Generate area plot
-cj_quarters_plot = ggplot(cj_quarters_mean_long, aes(x=as.numeric(Quarter), y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. jejuni")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
+cj_quarters_plot = ggplot(cj_quarters_mean_long, aes(x=make_date(as.numeric(Quarter)), y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. jejuni")) + scale_x_date(breaks=date_breaks("3 months"), expand=c(0,0), labels=format_quarters) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
 
 # Repeat for C. coli
 cc_quarters = cc
@@ -326,7 +345,7 @@ cc_quarters_mean_long = cc_quarters_mean_long[cc_quarters_order,]
 cc_quarters_mean_long$Source = factor(cc_quarters_mean_long$Source, levels=unique(as.character(cc_quarters_mean_long$Source)))
 
 # Generate area plot
-cc_quarters_plot = ggplot(cc_quarters_mean_long, aes(x=as.numeric(Quarter), y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. coli")) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
+cc_quarters_plot = ggplot(cc_quarters_mean_long, aes(x=make_date(as.numeric(Quarter)), y=Proportion, fill=Source)) + geom_area() + set_fill_colours + labs(x="Time (years and calendar quarters)", y="Proportion of isolates") + guides(fill=guide_legend(title="C. coli")) + scale_x_date(breaks=date_breaks("3 months"), expand=c(0,0), labels=format_quarters) + theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.title = element_text(face = "italic")) + facet_grid(site ~ .)
 
 # Plot C. jejuni and C. coli quarterly breakdowns in single figure
 quarterly_plot = plot_grid(cj_quarters_plot, cc_quarters_plot, labels=c("A", "B"), nrow = 2, align = "v")
