@@ -290,7 +290,7 @@ overall_years_count = union(cj_years_count, cc_years_count)
 overall_years_count$Year = as.integer(overall_years_count$Year)
 
 # Generate annual counts plot
-overall_years_count_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + scale_x_continuous(breaks=as.numeric(unique(overall_year_counts$Year)), labels=c(as.character(unique(overall_years_count$Year))), expand=c(0,0)) + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
+overall_years_count_plot = ggplot(data=overall_years_count, aes(x = Year, y = Count, group = Site)) + geom_line(aes(linetype=Site)) + scale_x_continuous(breaks=as.numeric(unique(overall_years_count$Year)), labels=c(as.character(unique(overall_years_count$Year))), expand=c(0,0)) + labs(x="Time (years)", y="Number of isolates") + theme_grey(base_size = 14) + theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "italic")) + facet_grid(Species ~ ., scales = "free")
 
 ## Combined annual counts table ##
 cj_years_count_report <- as.data.frame(cj_years_count) %>%
@@ -411,6 +411,15 @@ overall_quarters_count_plot = ggplot(data=overall_quarters_count, aes(x = make_d
 overall_counts_combined = plot_grid(overall_years_count_plot, overall_quarters_count_plot, labels=c("A", "B"), nrow = 2, align = "v")
 # Save plot
 ggsave("Figure4.svg", plot=overall_counts_combined, device="svg", width=210, height=148, units="mm", dpi=300)
+
+## Combined quarterly counts table ##
+cj_quarters_count_report <- as.data.frame(cj_quarters_count) %>%
+	select(-matches('Species'))
+cj_quarters_count_report = dcast(cj_quarters_count_report, Quarter ~ Site, value.var="Count")
+cc_quarters_count_report <- as.data.frame(cc_quarters_count) %>%
+	select(-matches('Species'))
+cc_quarters_count_report = dcast(cc_quarters_count_report, Quarter ~ Site, value.var="Count")
+overall_quarters_count_table = merge(cj_quarters_count_report, cc_quarters_count_report, by.x="Quarter", by.y="Quarter", all=TRUE, suffixes = c(" (Cj)"," (Cc)"))
 
 ###############################################################################
 ##### REPORT GENERATION #####
@@ -553,6 +562,8 @@ doc <- addPageBreak(doc)
 ### Quarterly breakdown ###
 doc = addTitle(doc, 'Quarterly breakdown', level=3)
 # Breakdown of number of isolates per quarter
+# Convert quarters into readable format that matches plots
+overall_quarters_count_table$Quarter = format_quarters(make_date(as.numeric(overall_quarters_count_table$Quarter)))
 doc = addParagraph(doc, 'Table A6. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates per quarter', stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(overall_quarters_count_table))
 doc = addParagraph(doc, '\r\n', stylename=)
