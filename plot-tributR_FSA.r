@@ -433,7 +433,7 @@ doc = addTitle(doc , 'FS101013: Source attribution of campylobacteriosis isolate
 
 ##### INTRODUCTION #####
 doc = addTitle(doc, 'Introduction', level=2)
-doc = addParagraph(doc, 'This is an automated report summarizing the population genetic assignment of Campylobacter isolates from cases of human disease collected in Newcastle/North Tyneside and Oxfordshire, UK.  Isolates were assigned to putative sources based on population genetic analysis using Structure or iSource software as selected by the user. The reporting system was developed using funding from the Food Standards Agency (FS101013) and the NIHR Health Protection Research Unit in Gastrointestinal Infections.', stylename = 'Normal')
+doc = addParagraph(doc, 'This is an automated report summarizing the population genetic assignment of Campylobacter isolates from human disease cases in Newcastle/North Tyneside and Oxfordshire, UK. Isolates were assigned to putative sources based on population genetic analysis using STRUCTURE (1) or iSource (2) software, as selected by the user. The reporting system was developed using funding from the Food Standards Agency (FS101013) and the NIHR Health Protection Research Unit in Gastrointestinal Infections.', stylename = 'Normal')
 
 
 ##### METHODS #####
@@ -503,13 +503,15 @@ doc = addParagraph(doc, 'Tabulated data for all figures in this section are prov
 
 # Quarterly attribution plot
 doc = addPlot(doc , fun=print, x=quarterly_plot, width=6.5, height=7.5)
-doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s).  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
 
 ##### REFERENCES #####
 doc = addTitle(doc, 'References', level=2)
+doc = addParagraph(doc, '1. Pritchard, J.K., Stephens, M. and Donnelly, P., 2000. Inference of population structure using multilocus genotype data. Genetics, 155(2), pp.945-959.', stylename = 'Normal')
+doc = addParagraph(doc, '2. Wilson, D.J., Gabriel, E., Leatherbarrow, A.J., Cheesbrough, J., Gee, S., Bolton, E., Fox, A., Fearnhead, P., Hart, C.A. and Diggle, P.J., 2008. Tracing the source of campylobacteriosis. PLoS genetics, 4(9), p.e1000203.', stylename = 'Normal')
 
 doc <- addPageBreak(doc)
 
