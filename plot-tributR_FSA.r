@@ -562,6 +562,8 @@ doc = addParagraph(doc, '\r\n', stylename=)
 # Get significant figures
 cj_quarters_mean_table <- cj_quarters_mean_table %>%
 	mutate_if(is.numeric, funs(signif(., 3)))
+# Convert quarters into readable format that matches plots
+cj_quarters_mean_table$Quarter = format_quarters(make_date(as.numeric(cj_quarters_mean_table$Quarter)))
 # Display table
 doc = addParagraph(doc, sprintf('Table A7. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per quarter between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_quarters_mean_table))
@@ -570,6 +572,8 @@ doc = addParagraph(doc, '\r\n', stylename=)
 # Get significant figures
 cc_quarters_mean_table <- cc_quarters_mean_table %>%
 	mutate_if(is.numeric, funs(signif(., 3)))
+# Convert quarters into readable format that matches plots
+cc_quarters_mean_table$Quarter = format_quarters(make_date(as.numeric(cc_quarters_mean_table$Quarter)))
 # Display table
 doc = addParagraph(doc, sprintf('Table A8. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per quarter between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_quarters_mean_table))
