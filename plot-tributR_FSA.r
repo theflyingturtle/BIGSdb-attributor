@@ -68,7 +68,7 @@ all_cj_nwc = sum(ancs_cj$site == 'Newcastle')
 dated_cj_oxc = sum(cj$site == 'Oxfordshire')
 dated_cj_nwc = sum(cj$site == 'Newcastle')
 cj_oxc_missing_dates = all_cj_oxc - dated_cj_oxc 
-cj_nwx_missing_dates = all_cj_nwc - dated_cj_nwc
+cj_nwc_missing_dates = all_cj_nwc - dated_cj_nwc
 # C. coli
 no_ancs_cc = nrow(ancs_cc)
 no_cc = nrow(cc)
@@ -79,7 +79,7 @@ all_cc_nwc = sum(ancs_cc$site == 'Newcastle')
 dated_cc_oxc = sum(cc$site == 'Oxfordshire')
 dated_cc_nwc = sum(cc$site == 'Newcastle')
 cc_oxc_missing_dates = all_cc_oxc - dated_cc_oxc 
-cc_nwx_missing_dates = all_cc_nwc - dated_cc_nwc
+cc_nwc_missing_dates = all_cc_nwc - dated_cc_nwc
 
 ### Max and min dates ###
 # C. jejuni
@@ -440,10 +440,11 @@ doc = addParagraph(doc, 'This is an automated report summarizing the population 
 doc = addTitle(doc , 'Methods', level=2)
 ### Describe datasets ###
 doc = addTitle(doc, 'Datasets', level=3)
+doc = addParagraph(doc, 'Attribution analyses were carried out using data stored in the PubMLST database (https://pubmlst.org/ campylobacter/) (3).', stylename = 'Normal')
 doc = addTitle(doc, 'Reference isolates', level=4)
-doc = addParagraph(doc, 'Attribution analyses were carried out using C. jejuni and C. coli reference sets validated in 2017.  These datasets were exported from the PubMLST database in July 2017 and remain unchanged.', stylename = 'Normal')
+doc = addParagraph(doc, 'Validated C. jejuni (n = 7715) and C. coli (n = 3521) reference sets were exported from the PubMLST database in July 2017 and remain unchanged (Jansen van Rensburg et al., In preparation).', stylename = 'Normal')
 doc = addTitle(doc, 'Human disease isolates', level=4)
-doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from all date-based analyses presented in this report. Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwx_missing_dates, cj_oxc_missing_dates, cc_nwx_missing_dates, cc_oxc_missing_dates), stylename = 'Normal')
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from all date-based analyses presented in this report. Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwc_missing_dates, cj_oxc_missing_dates, cc_nwc_missing_dates, cc_oxc_missing_dates), stylename = 'Normal')
 
 ### Describe attribution ###
 doc = addTitle(doc, 'Source attribution', level=3)
@@ -492,7 +493,7 @@ doc = addParagraph(doc, 'Tabulated data for all figures in this section are prov
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot, width=6.5, height=6.5)
-doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s).  Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
@@ -511,7 +512,8 @@ doc <- addPageBreak(doc)
 ##### REFERENCES #####
 doc = addTitle(doc, 'References', level=2)
 doc = addParagraph(doc, '1. Pritchard, J.K., Stephens, M. and Donnelly, P., 2000. Inference of population structure using multilocus genotype data. Genetics, 155(2), pp.945-959.', stylename = 'Normal')
-doc = addParagraph(doc, '2. Wilson, D.J., Gabriel, E., Leatherbarrow, A.J., Cheesbrough, J., Gee, S., Bolton, E., Fox, A., Fearnhead, P., Hart, C.A. and Diggle, P.J., 2008. Tracing the source of campylobacteriosis. PLoS genetics, 4(9), p.e1000203.', stylename = 'Normal')
+doc = addParagraph(doc, '2. Wilson, D.J., Gabriel, E., Leatherbarrow, A.J., Cheesbrough, J., Gee, S., Bolton, E., Fox, A., Fearnhead, P., Hart, C.A. and Diggle, P.J., 2008. Tracing the source of campylobacteriosis. PLoS Genetics, 4(9), p.e1000203.', stylename = 'Normal')
+doc = addParagraph(doc, '3. Jolley, K.A. and Maiden, M.C., 2010. BIGSdb: scalable analysis of bacterial genome variation at the population level. BMC bioinformatics, 11(1), p.595.', stylename = 'Normal')
 
 doc <- addPageBreak(doc)
 
