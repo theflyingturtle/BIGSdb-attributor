@@ -453,9 +453,9 @@ doc = addParagraph(doc, 'Validated C. jejuni (n = 7715) and C. coli (n = 3521) r
 doc = addTitle(doc, 'Human disease isolates', level=4)
 # Print simpler statement if no missing data detected
 if (((cj_nwc_missing_dates + cj_oxc_missing_dates)==0)&((cc_nwc_missing_dates + cc_oxc_missing_dates)==0)) {
-doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire were attributed to animal and/or environmental sources.', no_ancs_cj, no_ancs_cc), stylename = 'Normal')
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates, collected between %s and %s in Newcastle/North Tyneside and Oxfordshire, were attributed to animal and/or environmental sources.', no_ancs_cj, no_ancs_cc, min_date, max_date), stylename = 'Normal')
 } else {
-doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from all date-based analyses presented in this report. Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwc_missing_dates, cj_oxc_missing_dates, cc_nwc_missing_dates, cc_oxc_missing_dates), stylename = 'Normal')
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates, collected between %s and %s in Newcastle/North Tyneside and Oxfordshire, were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from all date-based analyses presented in this report. Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, min_date, max_date, cj_nwc_missing_dates, cj_oxc_missing_dates, cc_nwc_missing_dates, cc_oxc_missing_dates), stylename = 'Normal')
 }
 
 ### Describe attribution ###
@@ -477,11 +477,11 @@ doc = addParagraph(doc, 'Tabulated data for Figures 1 and 2 are provided in the 
 
 # Overall summary plot
 doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources. Probabilistic assignment of (A) %s C. jejuni collected in Newcastle/North Tyneside and Oxfordshire between %s and %s, and (B) %s C. coli collected collected in Newcastle/North Tyneside and Oxfordshire between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 1. Attribution of (A) %s C. jejuni and (B) %s C. coli human disease isolates collected between %s and %s in Newcastle/North Tyneside and Oxfordshire to putative sources.', no_ancs_cj, no_ancs_cc, min_date, max_date), stylename='Normal')
 
 # Overall site-by-site plot
 doc = addPlot(doc, fun=print, x=overall_sites_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates from Newcastle/North Tyneside and Oxfordshire attributed to putative sources. Probabilistic assignment of (A) C. jejuni collected in Newcastle/North Tyneside( n = %s) and Oxfordshire (n = %s) between %s and %s, and (B) C. coli collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 2. Attribution of human disease isolates to putative sources. Probabilistic assignment of (A) C. jejuni collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s, and (B) C. coli collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 
 # Overall individual ancestries plot
 doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot, width=6.5, height=6)
