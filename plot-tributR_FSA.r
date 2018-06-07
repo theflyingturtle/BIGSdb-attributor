@@ -477,46 +477,44 @@ doc = addParagraph(doc, 'Tabulated data for Figures 1 and 2 are provided in the 
 
 # Overall summary plot
 doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 1. Attribution of (A) %s C. jejuni and (B) %s C. coli human disease isolates collected between %s and %s in Newcastle/North Tyneside and Oxfordshire to putative sources.', no_ancs_cj, no_ancs_cc, min_date, max_date), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources. Probabilistic assignment of (A) %s C. jejuni and (B) %s C. coli human disease isolates collected between %s and %s in Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, min_date, max_date), stylename='Normal')
 
 # Overall site-by-site plot
 doc = addPlot(doc, fun=print, x=overall_sites_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 2. Attribution of human disease isolates to putative sources. Probabilistic assignment of (A) C. jejuni collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s, and (B) C. coli collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 2. Estimated proportion of human disease isolates attributed to putative sources. Probabilistic assignment of (A) C. jejuni collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s, and (B) C. coli collected in Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s) between %s and %s.', all_cj_nwc, all_cj_oxc, min_date_cj, max_date_cj, all_cc_nwc, all_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 
 # Overall individual ancestries plot
 doc = addPlot(doc , fun=print, x=overall_ind_ancs_plot, width=6.5, height=6)
-doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual human disease isolates. Probabilistic assignment of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), respectively, and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Isolates are represented as vertical bars coloured according to the estimated probability for each source as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', all_cj_nwc, all_cj_oxc, all_cc_nwc, all_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 3. Source probabilities for individual human disease isolates. Probabilistic assignment of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Isolates are represented as vertical bars coloured according to the estimated probability for each source, as shown in the legends. Isolates are ordered horizontally to aid visualisation, first by most likely source and then by decreasing probability within each source.', all_cj_nwc, all_cj_oxc, all_cc_nwc, all_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
 ### Isolate counts ###
 doc = addTitle(doc, 'Breakdown of isolates over time', level=3)
-doc = addParagraph(doc, 'Tabulated data for the figures in this section are provided in the Appendices.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data are provided in the Appendices.', stylename = 'Normal')
 # Isolate count over years and quarters plot
 doc = addPlot(doc , fun=print, x=overall_counts_combined, width=6.5, height=7)
-doc = addParagraph(doc, 'Figure 4. Breakdown of isolate counts per year (A), and per year and quarter (B).', stylename='Normal')
+doc = addParagraph(doc, 'Figure 4. Number of isolates collected in Newcastle/North Tyneside and Oxfordshire per year (A), and per year and calendar quarter (B).', stylename='Normal')
 
 doc <- addPageBreak(doc)
 
 ### Annual breakdown ###
-doc = addTitle(doc, 'Annual breakdown', level=3)
-doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
-doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
+doc = addTitle(doc, 'Annual attribution breakdown', level=3)
+doc = addParagraph(doc, 'Tabulated data are provided in the Appendices.', stylename = 'Normal')
 
 # Annual attribution plot
 doc = addPlot(doc , fun=print, x=yearly_plot, width=6.5, height=6.5)
-doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources over time. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 5. Estimated proportion of human disease isolates attributed to putative sources per year. Probabilistic assignment of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
 ### Quarterly breakdown ###
 doc = addTitle(doc, 'Quarterly breakdown', level=3)
-doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
-doc = addParagraph(doc, 'Tabulated data for all figures in this section are provided in the Appendices.', stylename = 'Normal')
+doc = addParagraph(doc, 'Tabulated data are provided in the Appendices.', stylename = 'Normal')
 
 # Quarterly attribution plot
 doc = addPlot(doc , fun=print, x=quarterly_plot, width=6.5, height=7.5)
-doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources over calendar quarters. Proportion of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 6. Estimated proportion of human disease isolates attributed to putative sources per calendar quarter. Probabilistic assignment of (A) C. jejuni isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s), and (B) C. coli isolates from Newcastle/North Tyneside (n = %s) and Oxfordshire (n = %s). Bars are ordered from major (bottom) to minor (top) sources based on the overall proportions shown in Figure 1.', dated_cj_nwc, dated_cj_oxc, dated_cc_nwc, dated_cc_oxc), stylename='Normal')
 
 doc <- addPageBreak(doc)
 
@@ -536,31 +534,42 @@ doc = addTitle(doc, 'Appendices', level=2)
 ### Overall summary ###
 # Overall summary table
 doc = addTitle(doc, 'Overall summary', level=3)
-doc = addParagraph(doc, sprintf('Table A1. Estimated proportion of %s C. jejuni and %s C. coli human disease isolates attributed to putative sources', no_cj, no_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A1. Attribution to putative sources of %s C. jejuni and %s C. coli human disease isolates collected between %s and %s in Newcastle/North Tyneside and Oxfordshire.', no_cj, no_cc, min_date, max_date), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(overall_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
 # Overall site-by-site table
-doc = addParagraph(doc, sprintf('Table A2. Estimated proportion of C. jejuni (Cj) and C. coli (Cc) human disease isolates from Newcastle/North Tyneside (n = %s; n = %s) and Oxfordshire (n = %s; n = %s) attributed to putative sources', all_cj_nwc, all_cc_nwc, all_cj_oxc, all_cc_oxc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A2. Attribution to putative sources of C. jejuni (Cj) and C. coli (Cc) human disease isolates from Newcastle/North Tyneside (n = %s; n = %s) and Oxfordshire (n = %s; n = %s).', all_cj_nwc, all_cc_nwc, all_cj_oxc, all_cc_oxc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(sbs_table))
+doc = addParagraph(doc, '\r\n', stylename=)
+
+doc <- addPageBreak(doc)
+
+### Isolate counts ###
+doc = addTitle(doc, 'Breakdown of isolates over time', level=3)
+# Breakdown of number of isolates per year
+doc = addParagraph(doc, sprintf('Table A3. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates collected in Newcastle/North Tyneside and Oxfordshire per year between %s and %s.', min_date, max_date), stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_years_count_table))
+doc = addParagraph(doc, '\r\n', stylename=)
+
+# Breakdown of number of isolates per quarter
+# Convert quarters into readable format that matches plots
+overall_quarters_count_table$Quarter = format_quarters(make_date(as.numeric(overall_quarters_count_table$Quarter)))
+doc = addParagraph(doc, 'Table A4. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates per quarter', stylename='Normal')
+doc = addFlexTable(doc, vanilla.table(overall_quarters_count_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
 doc <- addPageBreak(doc)
 
 ### Annual breakdown ###
 doc = addTitle(doc, 'Annual breakdown', level=3)
-# Breakdown of number of isolates per year
-doc = addParagraph(doc, 'Table A3. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates per year', stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(overall_years_count_table))
-doc = addParagraph(doc, '\r\n', stylename=)
-
 # Breakdown of attribution per year
 # C. jejuni
 # Get significant figures
 cj_years_mean_table <- cj_years_mean_table %>%
 	mutate_if(is.numeric, funs(signif(., 3)))
 # Display table
-doc = addParagraph(doc, sprintf('Table A4. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A5. Proportion of C. jejuni isolates from Newcastle/North Tyneside (NWC) (n = %s) and Oxfordshire (OXC) (n = %s) attributed to putative sources per year between %s and %s.', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_years_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
@@ -569,7 +578,7 @@ doc = addParagraph(doc, '\r\n', stylename=)
 cc_years_mean_table <- cc_years_mean_table %>%
 	mutate_if(is.numeric, funs(signif(., 3)))
 # Display table
-doc = addParagraph(doc, sprintf('Table A5. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per year between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A6. Proportion of C. coli isolates from Newcastle/North Tyneside (NWC) (n = %s) and Oxfordshire (OXC) (n = %s) attributed to putative sources per year between %s and %s.', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_years_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
@@ -577,13 +586,6 @@ doc <- addPageBreak(doc)
 
 ### Quarterly breakdown ###
 doc = addTitle(doc, 'Quarterly breakdown', level=3)
-# Breakdown of number of isolates per quarter
-# Convert quarters into readable format that matches plots
-overall_quarters_count_table$Quarter = format_quarters(make_date(as.numeric(overall_quarters_count_table$Quarter)))
-doc = addParagraph(doc, 'Table A6. Number of C. jejuni (Cj) and C. coli (Cc) human disease isolates per quarter', stylename='Normal')
-doc = addFlexTable(doc, vanilla.table(overall_quarters_count_table))
-doc = addParagraph(doc, '\r\n', stylename=)
-
 # Breakdown of attribution per quarter
 # C. jejuni
 # Get significant figures
@@ -592,9 +594,10 @@ cj_quarters_mean_table <- cj_quarters_mean_table %>%
 # Convert quarters into readable format that matches plots
 cj_quarters_mean_table$Quarter = format_quarters(make_date(as.numeric(cj_quarters_mean_table$Quarter)))
 # Display table
-doc = addParagraph(doc, sprintf('Table A7. Proportion of %s and %s C. jejuni isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per quarter between %s and %s', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A7. Proportion of C. jejuni isolates from Newcastle/North Tyneside (NWC) (n = %s) and Oxfordshire (OXC) (n = %s) attributed to putative sources per calendar quarter between %s and %s.', dated_cj_nwc, dated_cj_oxc, min_date_cj, max_date_cj), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cj_quarters_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
+
 # C. coli
 # Get significant figures
 cc_quarters_mean_table <- cc_quarters_mean_table %>%
@@ -602,7 +605,7 @@ cc_quarters_mean_table <- cc_quarters_mean_table %>%
 # Convert quarters into readable format that matches plots
 cc_quarters_mean_table$Quarter = format_quarters(make_date(as.numeric(cc_quarters_mean_table$Quarter)))
 # Display table
-doc = addParagraph(doc, sprintf('Table A8. Proportion of %s and %s C. coli isolates from Newcastle/North Tyneside (NWC) and Oxfordshire (OXC), respectively, attributed to putative sources per quarter between %s and %s', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Table A8. Proportion of C. coli isolates from Newcastle/North Tyneside (NWC) (n = %s) and Oxfordshire (OXC) (n = %s) attributed to putative sources per calendar quarter between %s and %s.', dated_cc_nwc, dated_cc_oxc, min_date_cc, max_date_cc), stylename='Normal')
 doc = addFlexTable(doc, vanilla.table(cc_quarters_mean_table))
 doc = addParagraph(doc, '\r\n', stylename=)
 
