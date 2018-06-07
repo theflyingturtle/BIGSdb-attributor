@@ -441,16 +441,25 @@ doc = addTitle(doc , 'Methods', level=2)
 ### Describe datasets ###
 doc = addTitle(doc, 'Datasets', level=3)
 doc = addParagraph(doc, 'Attribution analyses were carried out using data stored in the PubMLST database (https://pubmlst.org/ campylobacter/) (3).', stylename = 'Normal')
+
+## Reference sets ##
 doc = addTitle(doc, 'Reference isolates', level=4)
 doc = addParagraph(doc, 'Validated C. jejuni (n = 7715) and C. coli (n = 3521) reference sets were exported from the PubMLST database in July 2017 and remain unchanged (Jansen van Rensburg et al., In preparation).', stylename = 'Normal')
+
+## Human disease sets ##
 doc = addTitle(doc, 'Human disease isolates', level=4)
+# Print simpler statement if no missing data detected
+if (((cj_nwc_missing_dates + cj_oxc_missing_dates)==0)&((cc_nwc_missing_dates + cc_oxc_missing_dates)==0)) {
+doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates from Newcastle/North Tyneside and Oxfordshire were attributed to animal and/or environmental sources.', no_ancs_cj, no_ancs_cc), stylename = 'Normal')
+} else {
 doc = addParagraph(doc, sprintf('A total of %s C. jejuni and %s C. coli isolates were attributed to animal and/or environmental sources; however, isolates without dates of isolation/laboratory receipt dates were excluded from all date-based analyses presented in this report. Following data cleaning, %s and %s C. jejuni from Newcastle/North Tyneside and Oxfordshire, respectively, were excluded, as were %s and %s C. coli from Newcastle/North Tyneside and Oxfordshire.', no_ancs_cj, no_ancs_cc, cj_nwc_missing_dates, cj_oxc_missing_dates, cc_nwc_missing_dates, cc_oxc_missing_dates), stylename = 'Normal')
+}
 
 ### Describe attribution ###
 doc = addTitle(doc, 'Source attribution', level=3)
-doc = addParagraph(doc, 'Isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations.  For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.', stylename = 'Normal')
+doc = addParagraph(doc, 'Isolates were assigned to putative host sources using STRUCTURE or iSource, based on analysis of MLST data. The algorithms were run separately for C. jejuni and C. coli. For STRUCTURE analyses, the no-admixture model was used and the program was run using a burn-in period of 1,000 cycles followed by 10,000 iterations. For iSource, the Asymmetric Island model was used and the program was run for 10,000 iterations without thinning, using a symmetric Dirichlet prior.', stylename = 'Normal')
 doc = addParagraph(doc, 'The probabilities of attribution to each source are summed as an arithmetic mean across the cases of human infection (Figures 1 and 2), presented for individual isolates (Figure 3), and summed over time (Figure 5 onwards).', stylename = 'Normal')
-doc = addParagraph(doc, 'The attribution carries the assumption that all isolates came from one of the sources in the analysis. Isolates from sources not represented will be assigned to sources present in the reference sets according to their genetic similarity. The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. Results should be considered in the light of the results of the reference set validation study.', stylename = 'Normal')
+doc = addParagraph(doc, 'The attribution carries the assumption that all isolates came from one of the sources in the analysis. Isolates from sources not represented will be assigned to sources present in the reference sets according to their genetic similarity. The results presented do not include any adjustment for bias that may occur in population genetic attribution with the included reference isolates. Results should be considered in the light of the results of the reference set validation study (Cody et al., In preparation; Jansen van Rensburg et al., In preparation).', stylename = 'Normal')
 
 doc <- addPageBreak(doc)
 
@@ -460,12 +469,12 @@ doc = addTitle(doc, 'Results', level=2)
 
 ### Overall summary ###
 doc = addTitle(doc, 'Overall summary', level=3)
-doc = addParagraph(doc, 'Add text summary here.', stylename = 'Normal')
+doc = addParagraph(doc, 'Figures 1 and 2 show the overall and site-by-site proportions attributed to each source in the reference set, respectively. Figure 3 shows the probabilistic assignments of individual isolates. Tabulated data for Figures 1 and 2 are provided in the Appendices.', stylename = 'Normal')
 doc = addParagraph(doc, 'Tabulated data for Figures 1 and 2 are provided in the Appendices.', stylename = 'Normal')
 
 # Overall summary plot
 doc = addPlot(doc , fun=print, x=overall_plot, width=6, height=4)
-doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources.  Probabilistic assignment of (A) %s C. jejuni collected between %s and %s, and (B) %s C. coli collected between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
+doc = addParagraph(doc, sprintf('Figure 1. Estimated proportion of human disease isolates attributed to putative sources. Probabilistic assignment of (A) %s C. jejuni collected in Newcastle/North Tyneside and Oxfordshire between %s and %s, and (B) %s C. coli collected collected in Newcastle/North Tyneside and Oxfordshire between %s and %s.', no_ancs_cj, min_date_cj, max_date_cj, no_ancs_cc, min_date_cc, max_date_cc), stylename='Normal')
 
 # Overall site-by-site plot
 doc = addPlot(doc, fun=print, x=overall_sites_plot, width=6, height=4)
