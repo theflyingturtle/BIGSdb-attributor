@@ -88,6 +88,9 @@ min_date_cj = format(min(as.Date(cj$date, format="%d/%m/%Y")), "%B %Y")
 # C. coli
 max_date_cc = format(max(as.Date(cc$date, format="%d/%m/%Y")), "%B %Y")
 min_date_cc = format(min(as.Date(cc$date, format="%d/%m/%Y")), "%B %Y")
+# Overall
+max_date = format(max(as.Date(dplyr::bind_rows(cj, cc)$date, format="%d/%m/%Y")), "%B %Y")
+min_date = format(min(as.Date(dplyr::bind_rows(cj, cc)$date, format="%d/%m/%Y")), "%B %Y")
 
 
 ##### OVERALL SUMMARIES #####
