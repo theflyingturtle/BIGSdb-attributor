@@ -428,7 +428,7 @@ overall_quarters_count_table = merge(cj_quarters_count_report, cc_quarters_count
 
 ##### CREATE DOCUMENT AND TITLE #####
 doc = docx(title="FSA_Report_Skeleton")
-doc = addTitle(doc , 'FSA-101013: Source attribution of campylobacteriosis isolates from Oxfordshire and Newcastle/North Tyneside', level=1)
+doc = addTitle(doc , 'FS101013: Source attribution of campylobacteriosis isolates from Newcastle/North Tyneside and Oxfordshire', level=1)
 
 
 ##### INTRODUCTION #####
