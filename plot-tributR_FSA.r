@@ -258,12 +258,15 @@ cj_years_mean_table = dcast(setDT(cj_years_mean), Year ~ site, value.var=c(as.ch
 # Shorten the suffixes for ease of reading
 names(cj_years_mean_table) = gsub(x = names(cj_years_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
 names(cj_years_mean_table) = gsub(x = names(cj_years_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
+# Reorder columns so that sites are grouped
+cj_years_mean_table = cj_years_mean_table[order(grepl("^.*OXC.*$", colnames(cj_years_mean_table)))]
 
 ## Annual attribution tables for C. coli ##
 cc_years_mean_table = dcast(setDT(cc_years_mean), Year ~ site, value.var=c(as.character(unique(cc_overall_summary$Source))))
 # Shorten the suffixes for ease of reading
 names(cc_years_mean_table) = gsub(x = names(cc_years_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
 names(cc_years_mean_table) = gsub(x = names(cc_years_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
+cc_years_mean_table = cc_years_mean_table[order(grepl("^.*OXC.*$", colnames(cc_years_mean_table)))]
 
 ### Annual counts for C. jejuni ###
 cj_years_count = cj_years %>%
@@ -374,11 +377,14 @@ cj_quarters_mean_table = dcast(setDT(cj_quarters_mean), Quarter ~ site, value.va
 # Shorten the suffixes for ease of reading
 names(cj_quarters_mean_table) = gsub(x = names(cj_quarters_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
 names(cj_quarters_mean_table) = gsub(x = names(cj_quarters_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
+# Reorder columns so that sites are grouped
+cj_quarters_mean_table = cj_quarters_mean_table[order(grepl("^.*OXC.*$", colnames(cj_quarters_mean_table)))]
 
 ### Quarterly attribution table for C. coli ###
 cc_quarters_mean_table = dcast(setDT(cc_quarters_mean), Quarter ~ site, value.var=c(as.character(unique(cc_overall_summary$Source))))
 names(cc_quarters_mean_table) = gsub(x = names(cc_quarters_mean_table), pattern = "_Newcastle", replacement = " (NWC)")
 names(cc_quarters_mean_table) = gsub(x = names(cc_quarters_mean_table), pattern = "_Oxfordshire", replacement = " (OXC)")
+cc_quarters_mean_table = cc_quarters_mean_table[order(grepl("^.*OXC.*$", colnames(cc_quarters_mean_table)))]
 
 ### Quarterly counts for C. jejuni ###
 cj_quarters_count = cj_quarters %>%
