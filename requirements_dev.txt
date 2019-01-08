@@ -2,7 +2,7 @@ coverage==4.5.2
 flake8==3.6.0
 ipdb==0.11
 pip==18.1
-pre-commit==1.13.0
+pre-commit==1.14.0
 rope==0.11.0
 Sphinx==1.8.3
 tox==3.6.1
