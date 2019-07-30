@@ -1,6 +1,6 @@
 coverage==4.5.4
 flake8==3.7.8
-ipdb==0.12.1
+ipdb==0.12.2
 pip==19.2.1
 pre-commit==1.17.0
 rope==0.14.0
