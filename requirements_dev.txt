@@ -4,7 +4,7 @@ ipdb==0.13.2
 pip==20.1.1
 pre-commit==2.4.0
 rope==0.17.0
-Sphinx==3.0.3
+Sphinx==3.0.4
 tox==3.15.1
 wheel==0.34.2
 watchdog==0.10.1
