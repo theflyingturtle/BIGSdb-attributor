@@ -6,5 +6,5 @@ pre-commit==2.6.0
 rope==0.17.0
 Sphinx==3.2.0
 tox==3.19.0
-wheel==0.34.2
+wheel==0.35.0
 watchdog==0.10.3
