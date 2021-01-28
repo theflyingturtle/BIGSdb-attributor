@@ -5,6 +5,6 @@ pip==21.0
 pre-commit==2.9.3
 rope==0.18.0
 Sphinx==3.4.3
-tox==3.21.2
+tox==3.21.3
 wheel==0.36.2
 watchdog==1.0.2
