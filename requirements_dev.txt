@@ -1,4 +1,4 @@
-coverage==6.1
+coverage==6.1.1
 flake8==4.0.1
 ipdb==0.13.9
 pip==21.3.1
