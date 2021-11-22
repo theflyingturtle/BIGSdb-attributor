@@ -3,7 +3,7 @@ flake8==4.0.1
 ipdb==0.13.9
 pip==21.3.1
 pre-commit==2.15.0
-rope==0.21.1
+rope==0.22.0
 Sphinx==4.2.0
 tox==3.24.4
 wheel==0.37.0
