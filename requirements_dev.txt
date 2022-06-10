@@ -7,4 +7,4 @@ rope==1.1.1
 Sphinx==4.5.0
 tox==3.24.5
 wheel==0.37.1
-watchdog==2.1.8
+watchdog==2.1.9
